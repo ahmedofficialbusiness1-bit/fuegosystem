@@ -152,18 +152,24 @@ export default function App() {
     try {
       const provider = new GoogleAuthProvider();
       if (useRedirect) {
-        // Only use if requested via fallback button
-        await signInWithPopup(auth, provider); // Fallback
+        // Fallback pattern
+        await signInWithPopup(auth, provider);
       } else {
         await signInWithPopup(auth, provider);
       }
       toast.success("Umeingia kwa mafanikio");
     } catch (error: any) {
-      console.error("Login Error:", error);
+      console.error("Login Error Details:", error);
+      
       if (error.code === 'auth/popup-blocked') {
-        toast.error("Popup imezuiwa! Tafadhali ruhusu popups au fungua kwenye tab mpya.");
+        toast.error("Popup imezuiwa! Tafadhali ruhusu popups kwenye browser yako.");
+      } else if (error.code === 'auth/unauthorized-domain') {
+        toast.error("Domain hii hairuhusiwi! Ongeza '" + window.location.hostname + "' kwenye Firebase Console (Authorized Domains).");
+      } else if (error.code === 'auth/cancelled-popup-request' || error.code === 'auth/popup-closed-by-user') {
+        // User closed the popup, silent fail or info toast
+        toast.info("Login iliahirishwa.");
       } else {
-        toast.error("Imeshindwa kuingia: " + (error.message || "Unknown error"));
+        toast.error("Kosa la kuingia: " + (error.code || error.message));
       }
     }
   };
