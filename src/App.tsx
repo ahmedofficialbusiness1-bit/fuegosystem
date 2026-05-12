@@ -19,8 +19,12 @@ import {
   TrendingUp,
   Percent,
   Printer,
-  Download
+  Download,
+  Flame,
+  ShieldCheck,
+  Zap
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
@@ -528,42 +532,170 @@ export default function App() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F5F5F5]">
-        <Card className="w-full max-w-md shadow-2xl overflow-hidden border-none rounded-3xl group">
-          <div className="bg-[#1A237E] p-10 text-center text-white relative">
-             <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(255,165,0,0.2),transparent)] pointer-events-none"></div>
-            <h1 className="text-4xl font-black mb-2 tracking-tighter uppercase">{APP_CONFIG.brand.name}</h1>
-            <p className="text-indigo-200 text-xs font-bold uppercase tracking-widest opacity-80">Mfumo wa Udhibiti wa Madeni</p>
-          </div>
-          <CardContent className="p-12 flex flex-col items-center gap-8 bg-white">
-            <div className="bg-indigo-50 p-6 rounded-3xl rotate-3 group-hover:rotate-0 transition-transform duration-500 shadow-inner">
-              <Users className="h-16 w-16 text-[#1A237E]" />
-            </div>
-            <div className="text-center space-y-2">
-               <p className="text-slate-500 text-sm font-medium">Karibu! Tafadhali ingia kutumia akaunti iliyoidhinishwa.</p>
-            </div>
-            <Button 
-              onClick={() => handleLogin()}
-              className="w-full bg-[#1A237E] hover:bg-black py-7 text-xs font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl hover:shadow-2xl transition-all"
-            >
-              Ingia na Google
-            </Button>
+      <div className="min-h-screen w-full flex items-center justify-center bg-[#F8F9FF] p-4 sm:p-6 overflow-hidden relative">
+        {/* Background Decorative Elements */}
+        <div className="absolute top-[-10%] right-[-5%] w-[400px] h-[400px] bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-orange-500/10 rounded-full blur-[100px] pointer-events-none" />
+        
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(26,35,126,0.15)] overflow-hidden bg-white border border-white/50 backdrop-blur-xl"
+        >
+          {/* Left Side: Branding & Info */}
+          <div className="bg-[#1A237E] p-8 sm:p-12 text-white relative flex flex-col justify-between overflow-hidden">
+            {/* Pattern Overlay */}
+            <div className="absolute inset-0 opacity-10 pointer-events-none bg-[radial-gradient(#fff_1px,transparent_1px)] bg-[length:24px_24px]"></div>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/20 blur-[80px] rounded-full -translate-y-1/2 translate-x-1/2"></div>
             
-            <div className="text-center space-y-3 w-full">
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">Kama unashindwa kuingia:</p>
-              <ul className="text-[9px] text-slate-400 space-y-1 text-left list-disc pl-4">
-                <li>Hakikisha popups hazijazuiwa na browser yako</li>
-                <li>Jaribu kufungua mfumo kwenye <b>Tab Mpya</b> (Icon ya juu kulia)</li>
-                <li>Hakikisha unatumia akaunti iliyosajiliwa</li>
-              </ul>
+            <div className="relative z-10">
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+                className="flex items-center gap-3 mb-10"
+              >
+                <div className="w-12 h-12 bg-orange-500 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6">
+                  <Flame className="h-7 w-7 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-black tracking-tighter leading-none mb-1">FUEGO</h1>
+                  <p className="text-[10px] text-indigo-300 font-bold uppercase tracking-[0.2em]">{APP_CONFIG.brand.name.split(' ').slice(1).join(' ')}</p>
+                </div>
+              </motion.div>
+
+              <div className="space-y-10">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <h2 className="text-4xl sm:text-5xl font-black mb-6 leading-[1.1] tracking-tight text-white">
+                    Simamia Mauzo <br />
+                    <span className="text-orange-400">Punguza Madeni.</span>
+                  </h2>
+                  <p className="text-indigo-100/70 text-base max-w-md font-medium leading-relaxed">
+                    Mfumo namba moja wa kusimamia wateja, mauzo ya vikundi na matumizi kwa ufanisi zaidi.
+                  </p>
+                </motion.div>
+
+                <div className="grid gap-6">
+                  {[
+                    { icon: ShieldCheck, title: "Usalama wa Data", desc: "Data zako ziko salama kwenye Firebase Cloud." },
+                    { icon: Zap, title: "Real-time Sync", desc: "Tazama mabadiliko papo hapo kwenye vifaa vyote." },
+                    { icon: BarChart3, title: "Ripoti Kamilifu", desc: "Zalisha PDF na Excel za faida na matumizi." }
+                  ].map((item, idx) => (
+                    <motion.div 
+                      key={idx}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.5 + (idx * 0.1) }}
+                      className="flex gap-4 items-start group"
+                    >
+                      <div className="bg-white/10 p-2 rounded-xl group-hover:bg-orange-500/20 transition-colors">
+                        <item.icon className="h-5 w-5 text-orange-400" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-sm text-white">{item.title}</h4>
+                        <p className="text-[11px] text-indigo-200/80 leading-snug">{item.desc}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-2 w-full">
-               <div className="h-px bg-slate-100 flex-1"></div>
-               <span className="text-[10px] text-slate-300 font-bold uppercase tracking-widest">Authorized Staff Only</span>
-               <div className="h-px bg-slate-100 flex-1"></div>
+
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.5 }}
+              transition={{ delay: 1 }}
+              className="mt-12 text-[10px] font-bold uppercase tracking-[0.3em] flex items-center gap-2"
+            >
+              <div className="h-px bg-white/20 w-8" />
+              Empowering Tanzania Small Business
+            </motion.div>
+          </div>
+
+          {/* Right Side: Login Form */}
+          <div className="bg-white p-8 sm:p-16 flex flex-col justify-center items-center relative">
+            <div className="w-full max-w-sm space-y-10">
+              <div className="text-center space-y-2">
+                <h3 className="text-3xl font-black text-slate-800 tracking-tight">Karibu Tena</h3>
+                <p className="text-slate-500 text-sm font-medium">Tafadhali ingia kutumia akaunti ya Google ili uendelee.</p>
+              </div>
+
+              <div className="space-y-4">
+                <Button 
+                  onClick={() => handleLogin()}
+                  className="w-full h-16 bg-[#1A237E] hover:bg-black text-white font-black uppercase tracking-[0.15em] rounded-2xl shadow-[0_8px_30px_rgb(26,35,126,0.2)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.15)] transition-all duration-300 flex gap-4 group"
+                >
+                  <div className="bg-white rounded-full p-1.5 group-hover:scale-110 transition-transform">
+                    <svg className="w-4 h-4" viewBox="0 0 24 24">
+                      <path
+                        fill="#4285F4"
+                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                      />
+                      <path
+                        fill="#34A853"
+                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                      />
+                      <path
+                        fill="#FBBC05"
+                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
+                      />
+                      <path
+                        fill="#EA4335"
+                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                      />
+                    </svg>
+                  </div>
+                  Ingia na Google
+                </Button>
+
+                <div className="flex items-center gap-4 py-2">
+                  <div className="h-px bg-slate-100 flex-1"></div>
+                  <span className="text-[10px] text-slate-300 font-black uppercase tracking-widest leading-none">Vinginevyo</span>
+                  <div className="h-px bg-slate-100 flex-1"></div>
+                </div>
+
+                <div className="bg-slate-50 border border-slate-100 rounded-3xl p-6 space-y-4">
+                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Msaada wa Uingiaji</h4>
+                  <div className="space-y-3">
+                    {[
+                      "Hakikisha popups zinaruhusiwa",
+                      "Tumia browser ya Chrome/Safari",
+                      "Akaunti lazima iwe imesajiliwa"
+                    ].map((text, i) => (
+                      <div key={i} className="flex gap-2 items-center text-[11px] text-slate-500 font-medium leading-none">
+                        <div className="w-1 h-1 bg-indigo-400 rounded-full" />
+                        {text}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-6 text-center">
+                 <p className="text-[10px] text-slate-300 font-bold uppercase tracking-widest">
+                   &copy; {new Date().getFullYear()} Fuego Business Suite
+                 </p>
+              </div>
             </div>
-          </CardContent>
-        </Card>
+
+            {/* Subtle floating elements */}
+            <motion.div 
+               animate={{ y: [0, -10, 0] }}
+               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+               className="absolute top-20 right-20 w-4 h-4 bg-orange-500/20 rounded-full blur-[2px]"
+            />
+            <motion.div 
+               animate={{ y: [0, 10, 0] }}
+               transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+               className="absolute bottom-20 left-20 w-6 h-6 bg-indigo-500/10 rounded-full blur-[3px]"
+            />
+          </div>
+        </motion.div>
       </div>
     );
   }
