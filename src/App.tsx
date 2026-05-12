@@ -28,7 +28,8 @@ import {
   UserPlus,
   LogIn,
   Eye,
-  EyeOff
+  EyeOff,
+  ExternalLink
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -829,19 +830,33 @@ export default function App() {
                 <div className="bg-orange-50 border border-orange-100 rounded-3xl p-6 space-y-4 w-full">
                   <h4 className="text-[10px] font-black text-orange-600 uppercase tracking-widest text-center flex items-center justify-center gap-2">
                     <AlertCircle className="h-3 w-3" />
-                    Muhimu: Matatizo ya Kuingia
+                    Msaada wa Uingiaji: Muhimu
                   </h4>
-                  <div className="space-y-3">
-                    {[
-                      "Kama unatumia simu au browser inakataa, fungua mfumo kwenye TAB MPYA (Tumia icon ya juu kulia).",
-                      "Hakikisha umeruhusu 'Popups' kwenye browser yako.",
-                      "Kuingia kwa Email/Password kunafanya kazi tu kama umeruhusu 'Email/Password' kwenye Firebase Console."
-                    ].map((text, i) => (
-                      <div key={i} className="flex gap-2 items-start text-[11px] text-orange-700 font-medium leading-tight">
-                        <div className="w-1 h-1 bg-orange-400 rounded-full mt-1.5 flex-shrink-0" />
-                        {text}
-                      </div>
-                    ))}
+                  <div className="space-y-4">
+                    <p className="text-[11px] text-orange-700 font-bold text-center italic leading-tight">
+                      UKIKUTANA NA TATIZO LA KUINGIA (LOGIN ERROR):
+                    </p>
+                    <div className="space-y-3">
+                      {[
+                        "Fungua mfumo kwenye TAB MPYA kwa kubonyeza icon ya mshale juu kulia (Open in new tab).",
+                        "Hakikisha umeruhusu 'Popups' kwenye browser yako (Chrome/Safari).",
+                        "Kama bado unahitaji msaada, wasiliana na mtengenezaji."
+                      ].map((text, i) => (
+                        <div key={i} className="flex gap-2 items-start text-[11px] text-orange-800 font-medium leading-tight">
+                          <div className="w-1.5 h-1.5 bg-orange-400 rounded-full mt-1 flex-shrink-0" />
+                          {text}
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <Button 
+                      variant="outline" 
+                      className="w-full h-10 border-orange-200 text-orange-600 hover:bg-orange-100 font-black text-[10px] uppercase tracking-widest rounded-xl flex gap-2"
+                      onClick={() => window.open(window.location.href, '_blank')}
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                      Fungua kwenye Tab Mpya
+                    </Button>
                   </div>
                 </div>
 
@@ -1149,7 +1164,7 @@ export default function App() {
           )}
 
           {/* Main Table Section */}
-          <div className="bg-white rounded-2xl lg:rounded-3xl shadow-sm border border-slate-100 flex-1 flex flex-col min-h-[400px] lg:min-h-[500px] overflow-hidden">
+          <div className="bg-white rounded-2xl lg:rounded-3xl shadow-sm border border-slate-100 flex-1 flex flex-col min-h-[300px] sm:min-h-[400px] lg:min-h-[500px] overflow-hidden">
             <div className="p-4 lg:p-6 border-b border-slate-50 flex items-center justify-between bg-slate-50/40">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
@@ -1374,15 +1389,22 @@ export default function App() {
 
           {/* Debt Summary Banner */}
           {activeTab === "debt" && (
-            <div className="mt-4 bg-[#1A237E] p-10 rounded-3xl relative overflow-hidden flex items-center justify-between group">
-               <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl transition-transform duration-1000 group-hover:scale-150"></div>
-              <div>
-                <h3 className="text-white font-black text-2xl uppercase tracking-tighter">Madeni Yote Yanayosubiriwa</h3>
-                <p className="text-indigo-300 text-[10px] font-black uppercase tracking-[0.3em] mt-1 opacity-70">Total Outstanding receivables</p>
+            <div className="mt-4 bg-[#1A237E] p-3 sm:p-6 rounded-2xl relative overflow-hidden flex items-center justify-between group border border-white/5 shadow-lg">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-[40px]"></div>
+              
+              <div className="relative z-10">
+                <h3 className="text-white font-black text-xs sm:text-lg uppercase tracking-tight leading-none">
+                  Madeni Yote
+                </h3>
+                <p className="text-indigo-300/60 text-[7px] sm:text-[10px] font-bold uppercase tracking-widest mt-0.5">Outstanding</p>
               </div>
-              <p className="text-6xl font-black text-white tabular-nums tracking-tighter drop-shadow-2xl">
-                {(totals.partialDebt + totals.noneDebt).toLocaleString()} <span className="text-xl opacity-50 font-medium">TZS</span>
-              </p>
+
+              <div className="relative z-10 flex items-baseline gap-1.5 sm:gap-3">
+                <span className="text-xl sm:text-4xl font-black text-white tabular-nums tracking-tighter">
+                  {(totals.partialDebt + totals.noneDebt).toLocaleString()}
+                </span>
+                <span className="text-[9px] sm:text-base text-orange-400 font-black uppercase tracking-widest">TZS</span>
+              </div>
             </div>
           )}
 
@@ -1405,17 +1427,14 @@ export default function App() {
 
       {/* Popups & Notifications */}
       <Dialog open={isAddingCustomer} onOpenChange={setIsAddingCustomer}>
-        <DialogContent className="w-[95vw] sm:max-w-[500px] rounded-[2rem] border-none shadow-2xl p-0 overflow-hidden">
-          <div className="bg-[#1A237E] p-8 text-white relative">
-             <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
-             <DialogTitle className="text-xl font-black uppercase tracking-tight">
+        <DialogContent className="w-[95vw] sm:max-w-[450px] rounded-2xl border-none shadow-2xl p-0 overflow-hidden">
+          <div className="bg-[#1A237E] p-4 sm:p-6 text-white relative">
+             <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -mr-12 -mt-12 blur-xl"></div>
+             <DialogTitle className="text-sm sm:text-lg font-black uppercase tracking-tight">
               {selectedMteja ? "Badili Taarifa" : "Sajili Mteja Mpya"}
             </DialogTitle>
-            <DialogDescription className="text-indigo-300 text-[10px] font-bold uppercase tracking-widest mt-1 opacity-80">
-              Hakikisha usahihi wa kila nukta na tarakimu
-            </DialogDescription>
           </div>
-          <div className="p-8">
+          <div className="p-4 sm:p-6">
             <AddCustomerForm 
               initialData={selectedMteja ? {
                 jina: selectedMteja.jina,

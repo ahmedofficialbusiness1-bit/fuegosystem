@@ -287,7 +287,7 @@ export function WatejaTable({ wateja, onAddPayment, onEdit, onViewHistory, onFix
                       </p>
                     </div>
                     <div className="space-y-1 text-right">
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Deni Ramani</p>
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Deni Lililobaki</p>
                       <p className={cn(
                         "text-xs font-black",
                         currentDeni > 0 ? "text-red-600" : (mteja.kilicholipwa > mteja.bei_bidhaa ? "text-emerald-600" : "text-slate-300")
