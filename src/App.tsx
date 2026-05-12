@@ -283,9 +283,10 @@ export default function App() {
 
       setIsAddingCustomer(false);
       toast.success("Mteja ameongezwa");
-    } catch (error) {
-      handleFirestoreError(error, OperationType.WRITE, "wateja");
-      toast.error("Hitilafu imetokea");
+    } catch (error: any) {
+      console.error("Add customer error:", error);
+      const errInfo = error.message.startsWith("{") ? JSON.parse(error.message) : { error: error.message };
+      toast.error(`Imeshindwa kuhifadhi: ${errInfo.error || "Hitilafu ya mtandao"}`);
     }
   };
 
@@ -399,9 +400,10 @@ export default function App() {
       setIsAddingCustomer(false);
       setSelectedMteja(null);
       toast.success("Taarifa zimebadilishwa");
-    } catch (error) {
-      handleFirestoreError(error, OperationType.WRITE, `wateja/${selectedMteja.id}`);
-      toast.error("Imeshindwa kubadili taarifa");
+    } catch (error: any) {
+      console.error("Update customer error:", error);
+      const errInfo = error.message.startsWith("{") ? JSON.parse(error.message) : { error: error.message };
+      toast.error(`Imeshindwa kubadili: ${errInfo.error || "Hitilafu ya mtandao"}`);
     }
   };
 
@@ -1126,32 +1128,32 @@ export default function App() {
             <div className="bg-white p-4 lg:p-6 rounded-xl lg:rounded-2xl shadow-sm border-l-4 border-[#1B5E20] hover:shadow-md transition-all group">
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">TAYARI</p>
               <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-3 mt-3">
-                <span className="text-2xl lg:text-3xl font-black text-slate-900 leading-none">{stats.full.length}</span>
-                <span className="text-[9px] lg:text-[10px] font-black text-[#1B5E20] opacity-80 uppercase tracking-tighter bg-green-50 px-2 py-0.5 rounded truncate">TZS {totals.fullCollected.toLocaleString()}</span>
+                <span className="text-lg lg:text-xl font-black text-slate-900 leading-none">{stats.full.length}</span>
+                <span className="text-[8px] lg:text-[9px] font-black text-[#1B5E20] opacity-80 uppercase tracking-tighter bg-green-50 px-2 py-0.5 rounded truncate">TZS {totals.fullCollected.toLocaleString()}</span>
               </div>
             </div>
             
             <div className="bg-white p-4 lg:p-6 rounded-xl lg:rounded-2xl shadow-sm border-l-4 border-[#F57F17] hover:shadow-md transition-all group">
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">SEHEMU</p>
               <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-3 mt-3">
-                <span className="text-2xl lg:text-3xl font-black text-slate-900 leading-none">{stats.partial.length}</span>
-                <span className="text-[9px] lg:text-[10px] font-black text-[#F57F17] opacity-80 uppercase tracking-tighter bg-yellow-50 px-2 py-0.5 rounded truncate">TZS {totals.partialDebt.toLocaleString()}</span>
+                <span className="text-lg lg:text-xl font-black text-slate-900 leading-none">{stats.partial.length}</span>
+                <span className="text-[8px] lg:text-[9px] font-black text-[#F57F17] opacity-80 uppercase tracking-tighter bg-yellow-50 px-2 py-0.5 rounded truncate">TZS {totals.partialDebt.toLocaleString()}</span>
               </div>
             </div>
 
             <div className="bg-white p-4 lg:p-6 rounded-xl lg:rounded-2xl shadow-sm border-l-4 border-[#B71C1C] hover:shadow-md transition-all group">
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">DENI</p>
               <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-3 mt-3">
-                <span className="text-2xl lg:text-3xl font-black text-slate-900 leading-none">{stats.none.length}</span>
-                <span className="text-[9px] lg:text-[10px] font-black text-[#B71C1C] opacity-80 uppercase tracking-tighter bg-red-50 px-2 py-0.5 rounded truncate">TZS {totals.noneDebt.toLocaleString()}</span>
+                <span className="text-lg lg:text-xl font-black text-slate-900 leading-none">{stats.none.length}</span>
+                <span className="text-[8px] lg:text-[9px] font-black text-[#B71C1C] opacity-80 uppercase tracking-tighter bg-red-50 px-2 py-0.5 rounded truncate">TZS {totals.noneDebt.toLocaleString()}</span>
               </div>
             </div>
 
             <div className="bg-white p-4 lg:p-6 rounded-xl lg:rounded-2xl shadow-sm border-l-4 border-[#0D47A1] hover:shadow-md transition-all group">
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">PREPAID</p>
               <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-3 mt-3">
-                <span className="text-2xl lg:text-3xl font-black text-slate-900 leading-none">{stats.overpaid.length}</span>
-                <span className="text-[9px] lg:text-[10px] font-black text-[#0D47A1] opacity-80 uppercase tracking-tighter bg-blue-50 px-2 py-0.5 rounded truncate">TZS {totals.overpaidExtra.toLocaleString()}</span>
+                <span className="text-lg lg:text-xl font-black text-slate-900 leading-none">{stats.overpaid.length}</span>
+                <span className="text-[8px] lg:text-[9px] font-black text-[#0D47A1] opacity-80 uppercase tracking-tighter bg-blue-50 px-2 py-0.5 rounded truncate">TZS {totals.overpaidExtra.toLocaleString()}</span>
               </div>
             </div>
           </div>
@@ -1393,10 +1395,10 @@ export default function App() {
               <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-[40px]"></div>
               
               <div className="relative z-10">
-                <h3 className="text-white font-black text-xs sm:text-lg uppercase tracking-tight leading-none">
-                  Madeni Yote
+                <h3 className="text-white font-black text-[10px] sm:text-base uppercase tracking-tight leading-none">
+                  Madeni Yanayosubiriwa
                 </h3>
-                <p className="text-indigo-300/60 text-[7px] sm:text-[10px] font-bold uppercase tracking-widest mt-0.5">Outstanding</p>
+                <p className="text-indigo-300/60 text-[7px] sm:text-[9px] font-bold uppercase tracking-widest mt-0.5">Total Outstanding Receivables</p>
               </div>
 
               <div className="relative z-10 flex items-baseline gap-1.5 sm:gap-3">

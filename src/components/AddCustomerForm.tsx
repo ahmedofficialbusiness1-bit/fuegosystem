@@ -39,7 +39,7 @@ interface AddCustomerFormProps {
   initialData?: any;
 }
 
-export function AddCustomerForm({ onSubmit, initialData }: AddCustomerFormProps) {
+export function AddCustomerForm({ onSubmit: onSubmitProp, initialData }: AddCustomerFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema) as any,
     defaultValues: initialData ? {
@@ -77,19 +77,29 @@ export function AddCustomerForm({ onSubmit, initialData }: AddCustomerFormProps)
     }
   }, [idadiValue, unitPriceValue, form]);
 
+  const onSubmit = (data: z.infer<typeof formSchema>) => {
+    console.log("Submitting form data:", data);
+    onSubmitProp(data);
+  };
+
+  const onInvalid = (errors: any) => {
+    console.error("Form validation errors:", errors);
+    toast.error("Tafadhali kagua sehemu zilizowekwa nyekundu.");
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-1.5 py-0">
+      <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-2 py-0">
         <FormField
           control={form.control}
           name="jina"
           render={({ field }) => (
             <FormItem className="space-y-0.5">
-              <FormLabel className="text-[8px] font-black uppercase tracking-widest text-slate-400">Jina</FormLabel>
+              <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400">Jina kamili</FormLabel>
               <FormControl>
-                <Input placeholder="Sema Jina..." {...field} className="h-7 text-[12px] font-bold py-0 px-2" />
+                <Input placeholder="Ingiza jina..." {...field} className="h-9 text-[13px] font-bold py-0 px-3 bg-slate-50/50" />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-[9px] font-bold" />
             </FormItem>
           )}
         />
@@ -99,17 +109,17 @@ export function AddCustomerForm({ onSubmit, initialData }: AddCustomerFormProps)
           name="njia_malipo"
           render={({ field }) => (
             <FormItem className="space-y-0.5">
-              <FormLabel className="text-[8px] font-black uppercase tracking-widest text-slate-400">Kikundi</FormLabel>
+              <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400">Kikundi / Njia</FormLabel>
               <FormControl>
                 <div className="relative group/input">
                   <Input 
-                    placeholder="Andika..." 
+                    placeholder="Andika au chagua..." 
                     {...field} 
-                    className="pr-8 h-7 text-[12px] font-bold py-0 px-2"
+                    className="pr-10 h-9 text-[13px] font-bold py-0 px-3 bg-slate-50/50"
                   />
                   <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center">
                     <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger className="w-6 h-6 border-none bg-transparent hover:bg-slate-100 rounded-md p-0">
+                      <SelectTrigger className="w-8 h-8 border-none bg-transparent hover:bg-slate-100 rounded-md p-0 flex items-center justify-center">
                         <SelectValue placeholder="" />
                       </SelectTrigger>
                       <SelectContent>
@@ -123,23 +133,23 @@ export function AddCustomerForm({ onSubmit, initialData }: AddCustomerFormProps)
                   </div>
                 </div>
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-[9px] font-bold" />
             </FormItem>
           )}
         />
 
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-3">
           <FormField
             control={form.control}
             name="idadi"
             render={({ field }) => (
               <FormItem className="space-y-0.5">
-                <FormLabel className="text-[8px] font-black uppercase tracking-widest text-slate-400">Pcs</FormLabel>
+                <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400">Idadi (Pcs)</FormLabel>
                 <FormControl>
                   <Input 
                     type="number" 
                     {...field} 
-                    className="h-7 text-[12px] font-black tabular-nums py-0 px-2"
+                    className="h-9 text-[13px] font-black tabular-nums py-0 px-3 bg-slate-50/50"
                     onChange={(e) => {
                       const val = e.target.value === "" ? 0 : Number(e.target.value);
                       field.onChange(isNaN(val) ? 0 : val);
@@ -148,7 +158,7 @@ export function AddCustomerForm({ onSubmit, initialData }: AddCustomerFormProps)
                     }}
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-[9px] font-bold" />
               </FormItem>
             )}
           />
@@ -158,13 +168,13 @@ export function AddCustomerForm({ onSubmit, initialData }: AddCustomerFormProps)
             name="bei_kila_moja"
             render={({ field }) => (
               <FormItem className="space-y-0.5">
-                <FormLabel className="text-[8px] font-black uppercase tracking-widest text-slate-400">Bei @</FormLabel>
+                <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400">Bei ya 1</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Input 
                       type="number" 
                       {...field} 
-                      className="h-7 text-[12px] font-black tabular-nums border-indigo-100 py-0 px-2"
+                      className="h-9 text-[13px] font-black tabular-nums border-indigo-100 py-0 px-3 bg-slate-50/50"
                       onChange={(e) => {
                         const val = e.target.value === "" ? 0 : Number(e.target.value);
                         field.onChange(isNaN(val) ? 0 : val);
@@ -172,43 +182,43 @@ export function AddCustomerForm({ onSubmit, initialData }: AddCustomerFormProps)
                         form.setValue("bei_bidhaa", (isNaN(val) ? 0 : val) * (isNaN(currentQty) ? 0 : currentQty));
                       }}
                     />
-                    <span className="absolute right-1 top-1/2 -translate-y-1/2 text-[7px] font-black text-slate-300">TZS</span>
+                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[8px] font-black text-slate-300">TZS</span>
                   </div>
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-[9px] font-bold" />
               </FormItem>
             )}
           />
         </div>
         
-        <div className="flex gap-1">
+        <div className="flex gap-2">
           <Button 
           type="button" 
           variant="outline" 
           className={cn(
-            "flex-1 h-5 text-[6px] font-black uppercase tracking-widest transition-all rounded-md px-1",
-            unitPriceValue === UNIT_PRICE ? "bg-indigo-50 border-indigo-200 text-indigo-700 shadow-sm" : "border-slate-50 text-slate-300"
+            "flex-1 h-7 text-[8px] font-black uppercase tracking-widest transition-all rounded-lg px-2",
+            unitPriceValue === UNIT_PRICE ? "bg-indigo-50 border-indigo-200 text-indigo-700 shadow-sm" : "border-slate-100 text-slate-400"
           )}
           onClick={() => {
             form.setValue("bei_kila_moja", UNIT_PRICE);
             form.setValue("bei_bidhaa", Number(form.getValues("idadi")) * UNIT_PRICE);
           }}
           >
-            JM (120k)
+            JM (120,000)
           </Button>
           <Button 
           type="button" 
           variant="outline" 
           className={cn(
-            "flex-1 h-5 text-[6px] font-black uppercase tracking-widest transition-all rounded-md px-1",
-            unitPriceValue === RETAIL_PRICE ? "bg-indigo-50 border-indigo-200 text-indigo-700 shadow-sm" : "border-slate-50 text-slate-300"
+            "flex-1 h-7 text-[8px] font-black uppercase tracking-widest transition-all rounded-lg px-2",
+            unitPriceValue === RETAIL_PRICE ? "bg-indigo-50 border-indigo-200 text-indigo-700 shadow-sm" : "border-slate-100 text-slate-400"
           )}
           onClick={() => {
             form.setValue("bei_kila_moja", RETAIL_PRICE);
             form.setValue("bei_bidhaa", Number(form.getValues("idadi")) * RETAIL_PRICE);
           }}
           >
-            RE (140k)
+            RE (140,000)
           </Button>
         </div>
 
@@ -217,41 +227,40 @@ export function AddCustomerForm({ onSubmit, initialData }: AddCustomerFormProps)
           name="bei_bidhaa"
           render={({ field }) => (
             <FormItem className="space-y-0.5">
-              <FormLabel className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none">Jumla ya Bill</FormLabel>
+              <FormLabel className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Jumla kuu ya Bill (Total)</FormLabel>
               <FormControl>
                 <div className="relative">
                   <Input 
                     type="number" 
                     {...field} 
-                    value={isNaN(Number(field.value)) ? 0 : field.value}
                     className={cn(
-                      "h-9 text-[16px] font-black tabular-nums bg-slate-50/50 border-dashed border px-3 pr-10",
-                      (Number(field.value) || 0) > (Number(idadiValue) || 0) * UNIT_PRICE ? "text-emerald-700 border-emerald-100" : 
-                      (Number(field.value) || 0) < (Number(idadiValue) || 0) * UNIT_PRICE ? "text-red-700 border-red-100" : "text-[#1A237E] border-indigo-50"
+                      "h-11 text-xl font-black tabular-nums bg-white border-dashed border-2 px-4 pr-16",
+                      (Number(field.value) || 0) > (Number(idadiValue) || 0) * UNIT_PRICE ? "text-emerald-700 border-emerald-200" : 
+                      (Number(field.value) || 0) < (Number(idadiValue) || 0) * UNIT_PRICE ? "text-red-700 border-red-200" : "text-[#1A237E] border-indigo-200"
                     )} 
                   />
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                    <span className="text-[8px] font-black text-slate-300">TZS</span>
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                    <span className="text-[10px] font-black text-slate-300">TZS</span>
                   </div>
                 </div>
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-[9px] font-bold" />
             </FormItem>
           )}
         />
 
 
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-3">
           <FormField
             control={form.control}
             name="kilicholipwa"
             render={({ field }) => (
               <FormItem className="space-y-0.5">
-                <FormLabel className="text-[8px] font-black uppercase tracking-widest text-slate-400 leading-none">Lipwa</FormLabel>
+                <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-none">Kiasi kilicholipwa</FormLabel>
                 <FormControl>
-                  <Input type="number" {...field} value={isNaN(Number(field.value)) ? 0 : field.value} className="h-7 text-[12px] font-black tabular-nums py-0 px-2" />
+                  <Input type="number" {...field} className="h-9 text-[13px] font-black tabular-nums px-3 bg-slate-50/50" />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-[9px] font-bold" />
               </FormItem>
             )}
           />
@@ -261,11 +270,11 @@ export function AddCustomerForm({ onSubmit, initialData }: AddCustomerFormProps)
             name="simu"
             render={({ field }) => (
               <FormItem className="space-y-0.5">
-                <FormLabel className="text-[8px] font-black uppercase tracking-widest text-slate-400 leading-none">Simu (Opt)</FormLabel>
+                <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-none">Namba ya Simu</FormLabel>
                 <FormControl>
-                  <Input placeholder="07.." {...field} className="h-7 text-[12px] font-bold py-0 px-2" />
+                  <Input placeholder="07.." {...field} className="h-9 text-[13px] font-bold px-3 bg-slate-50/50" />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-[9px] font-bold" />
               </FormItem>
             )}
           />
@@ -276,17 +285,21 @@ export function AddCustomerForm({ onSubmit, initialData }: AddCustomerFormProps)
           name="maelezo"
           render={({ field }) => (
             <FormItem className="space-y-0.5">
-              <FormLabel className="text-[8px] font-black uppercase tracking-widest text-slate-400 leading-none">Maelezo (Opt)</FormLabel>
+              <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-none">Maelezo ya ziada</FormLabel>
               <FormControl>
-                <Textarea placeholder="..." {...field} className="min-h-[40px] text-[11px] font-semibold py-1 px-2 resize-none" />
+                <Textarea placeholder="Andika maelezo hapa..." {...field} className="min-h-[50px] text-[12px] font-semibold py-2 px-3 resize-none bg-slate-50/50" />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-[9px] font-bold" />
             </FormItem>
           )}
         />
 
-        <Button type="submit" className="w-full h-9 bg-[#1A237E] hover:bg-black text-white font-black uppercase tracking-[0.1em] rounded-xl text-[11px] mt-1 shadow-md">
-          Hifadhi Mteja
+        <Button 
+          type="submit" 
+          disabled={form.formState.isSubmitting}
+          className="w-full h-11 bg-[#1A237E] hover:bg-black text-white font-black uppercase tracking-[0.15em] rounded-xl text-xs mt-2 shadow-lg transition-all active:scale-95 flex gap-2 items-center justify-center"
+        >
+          {form.formState.isSubmitting ? "Inahifadhi..." : "Hifadhi Mteja"}
         </Button>
       </form>
     </Form>
