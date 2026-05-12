@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -22,7 +22,13 @@ import {
   Download,
   Flame,
   ShieldCheck,
-  Zap
+  Zap,
+  Mail,
+  Lock,
+  UserPlus,
+  LogIn,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -68,7 +74,14 @@ import {
   Timestamp
 } from "firebase/firestore";
 import { db, auth, handleFirestoreError, OperationType } from "./lib/firebase";
-import { GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "firebase/auth";
+import { 
+  GoogleAuthProvider, 
+  signInWithPopup, 
+  onAuthStateChanged, 
+  signOut,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword 
+} from "firebase/auth";
 
 import { StatsCharts } from "./components/StatsCharts";
 import { cn } from "@/lib/utils";
@@ -91,6 +104,13 @@ export default function App() {
   const [user, setUser] = useState<any>(null);
   const [prefferedGroup, setPrefferedGroup] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Auth Form State
+  const [authMode, setAuthMode] = useState<"login" | "signup">("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [authSubmitting, setAuthSubmitting] = useState(false);
 
   // Auth Listener
   useEffect(() => {
@@ -181,6 +201,36 @@ export default function App() {
   const handleLogout = async () => {
     await signOut(auth);
     toast.info("Umetoka kwenye mfumo");
+  };
+
+  const handleEmailAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) {
+      toast.error("Tafadhali jaza email na password.");
+      return;
+    }
+    
+    setAuthSubmitting(true);
+    try {
+      if (authMode === "login") {
+        await signInWithEmailAndPassword(auth, email, password);
+        toast.success("Karibu tena!");
+      } else {
+        await createUserWithEmailAndPassword(auth, email, password);
+        toast.success("Akaunti imetengenezwa vizuri!");
+      }
+    } catch (error: any) {
+      console.error("Email Auth Error:", error);
+      let message = "Kosa limetokea. Jaribu tena.";
+      if (error.code === "auth/user-not-found") message = "Mtumiaji hajapatikana.";
+      if (error.code === "auth/wrong-password") message = "Password siyo sahihi.";
+      if (error.code === "auth/email-already-in-use") message = "Email hii tayari inatumika.";
+      if (error.code === "auth/weak-password") message = "Password lazima iwe na angalau herufi 6.";
+      if (error.code === "auth/invalid-email") message = "Email yako siyo sahihi.";
+      toast.error(message);
+    } finally {
+      setAuthSubmitting(false);
+    }
   };
 
   const handleAddCustomer = async (formData: any) => {
@@ -618,82 +668,134 @@ export default function App() {
           </div>
 
           {/* Right Side: Login Form */}
-          <div className="bg-white p-8 sm:p-16 flex flex-col justify-center items-center relative">
-            <div className="w-full max-w-sm space-y-10">
+          <div className="bg-white p-8 sm:p-12 flex flex-col justify-center items-center relative min-h-[600px]">
+            <div className="w-full max-w-sm space-y-8">
               <div className="text-center space-y-2">
-                <h3 className="text-3xl font-black text-slate-800 tracking-tight">Karibu Tena</h3>
-                <p className="text-slate-500 text-sm font-medium">Tafadhali ingia kutumia akaunti ya Google ili uendelee.</p>
+                <h3 className="text-3xl font-black text-slate-800 tracking-tight">
+                  {authMode === "login" ? "Karibu Tena" : "Anza Sasa"}
+                </h3>
+                <p className="text-slate-500 text-sm font-medium">
+                  {authMode === "login" 
+                    ? "Tafadhali ingia ili kuendelea na kazi yako." 
+                    : "Fungua akaunti mpya kuanza kusimamia biashara."}
+                </p>
               </div>
 
-              <div className="space-y-4">
-                <Button 
-                  onClick={() => handleLogin()}
-                  className="w-full h-16 bg-[#1A237E] hover:bg-black text-white font-black uppercase tracking-[0.15em] rounded-2xl shadow-[0_8px_30px_rgb(26,35,126,0.2)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.15)] transition-all duration-300 flex gap-4 group"
+              {/* Toggle Switch */}
+              <div className="flex bg-slate-100 p-1.5 rounded-2xl gap-1">
+                <button 
+                  onClick={() => setAuthMode("login")}
+                  type="button"
+                  className={cn(
+                    "flex-1 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all",
+                    authMode === "login" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
+                  )}
                 >
-                  <div className="bg-white rounded-full p-1.5 group-hover:scale-110 transition-transform">
-                    <svg className="w-4 h-4" viewBox="0 0 24 24">
-                      <path
-                        fill="#4285F4"
-                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                      />
-                      <path
-                        fill="#34A853"
-                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                      />
-                      <path
-                        fill="#FBBC05"
-                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
-                      />
-                      <path
-                        fill="#EA4335"
-                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                      />
-                    </svg>
+                  <div className="flex items-center justify-center gap-2">
+                    <LogIn className="h-3 w-3" />
+                    Ingia (Login)
                   </div>
-                  Ingia na Google
-                </Button>
-
-                <div className="flex items-center gap-4 py-2">
-                  <div className="h-px bg-slate-100 flex-1"></div>
-                  <span className="text-[10px] text-slate-300 font-black uppercase tracking-widest leading-none">Vinginevyo</span>
-                  <div className="h-px bg-slate-100 flex-1"></div>
-                </div>
-
-                <div className="bg-slate-50 border border-slate-100 rounded-3xl p-6 space-y-4">
-                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Msaada wa Uingiaji</h4>
-                  <div className="space-y-3">
-                    {[
-                      "Hakikisha popups zinaruhusiwa",
-                      "Tumia browser ya Chrome/Safari",
-                      "Akaunti lazima iwe imesajiliwa"
-                    ].map((text, i) => (
-                      <div key={i} className="flex gap-2 items-center text-[11px] text-slate-500 font-medium leading-none">
-                        <div className="w-1 h-1 bg-indigo-400 rounded-full" />
-                        {text}
-                      </div>
-                    ))}
+                </button>
+                <button 
+                  onClick={() => setAuthMode("signup")}
+                  type="button"
+                  className={cn(
+                    "flex-1 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all",
+                    authMode === "signup" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
+                  )}
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    <UserPlus className="h-3 w-3" />
+                    Jisajili (Sign Up)
                   </div>
-                </div>
+                </button>
               </div>
 
-              <div className="pt-6 text-center">
+              {/* Email Form */}
+              <form onSubmit={handleEmailAuth} className="space-y-4">
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
+                    <div className="relative">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+                      <Input 
+                        type="email" 
+                        placeholder="mfano@gmail.com" 
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="h-14 pl-12 rounded-2xl bg-white border-slate-200 focus:ring-indigo-500 focus:border-indigo-500 text-sm font-medium"
+                        required
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Password</label>
+                    <div className="relative">
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+                      <Input 
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••" 
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="h-14 pl-12 pr-12 rounded-2xl bg-white border-slate-200 focus:ring-indigo-500 focus:border-indigo-500 text-sm font-medium"
+                        required
+                      />
+                      <button 
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-indigo-500"
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <Button 
+                  type="submit"
+                  disabled={authSubmitting}
+                  className={cn(
+                    "w-full h-14 bg-[#1A237E] hover:bg-black text-white font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl transition-all duration-300",
+                    authSubmitting && "opacity-70 cursor-not-allowed"
+                  )}
+                >
+                  {authSubmitting 
+                    ? <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }} className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full" /> 
+                    : (authMode === "login" ? "Ingia Sasa" : "Tengeneza Akaunti")}
+                </Button>
+              </form>
+
+              <div className="flex items-center gap-4 py-2">
+                <div className="h-px bg-slate-100 flex-1"></div>
+                <span className="text-[10px] text-slate-300 font-black uppercase tracking-widest leading-none">Au tumia</span>
+                <div className="h-px bg-slate-100 flex-1"></div>
+              </div>
+
+              {/* Social Login */}
+              <Button 
+                onClick={() => handleLogin()}
+                variant="outline"
+                type="button"
+                className="w-full h-14 bg-white hover:bg-slate-50 text-slate-600 font-black uppercase tracking-[0.15em] rounded-2xl border-slate-100 shadow-sm transition-all flex gap-3 group"
+              >
+                <div className="bg-white border rounded-full p-1 group-hover:scale-110 transition-transform shadow-sm">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                  </svg>
+                </div>
+                Ingia na Google
+              </Button>
+
+              <div className="pt-4 text-center">
                  <p className="text-[10px] text-slate-300 font-bold uppercase tracking-widest">
                    &copy; {new Date().getFullYear()} Fuego Business Suite
                  </p>
               </div>
             </div>
-
-            {/* Subtle floating elements */}
-            <motion.div 
-               animate={{ y: [0, -10, 0] }}
-               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-               className="absolute top-20 right-20 w-4 h-4 bg-orange-500/20 rounded-full blur-[2px]"
-            />
-            <motion.div 
-               animate={{ y: [0, 10, 0] }}
-               transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-               className="absolute bottom-20 left-20 w-6 h-6 bg-indigo-500/10 rounded-full blur-[3px]"
-            />
           </div>
         </motion.div>
       </div>
