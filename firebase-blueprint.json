@@ -1,0 +1,63 @@
+{
+  "entities": {
+    "Wateja": {
+      "title": "Customer",
+      "description": "Details of a customer and their payment status",
+      "type": "object",
+      "properties": {
+        "jina": { "type": "string", "description": "Full name" },
+        "idadi": { "type": "number", "description": "Quantity of products" },
+        "kilicholipwa": { "type": "number", "description": "Amount paid in TZS" },
+        "bei_bidhaa": { "type": "number", "description": "Total price in TZS" },
+        "njia_malipo": { "type": "string", "description": "Payment method" },
+        "hali": { "type": "string", "description": "Calculated status" },
+        "deni": { "type": "number", "description": "Remaining debt" },
+        "tarehe_kuongezwa": { "type": "string", "format": "date-time" },
+        "tarehe_kulipwa": { "type": "string", "format": "date-time" },
+        "maelezo": { "type": "string" },
+        "simu": { "type": "string" }
+      },
+      "required": ["jina", "idadi", "bei_bidhaa", "kilicholipwa"]
+    },
+    "HistoriaMalipo": {
+      "title": "Payment History",
+      "description": "Log of individual payments for a customer",
+      "type": "object",
+      "properties": {
+        "kiasi": { "type": "number" },
+        "njia": { "type": "string" },
+        "tarehe": { "type": "string", "format": "date-time" },
+        "deni_kabla": { "type": "number" },
+        "deni_baada": { "type": "number" },
+        "aliyehifadhi": { "type": "string" }
+      },
+      "required": ["kiasi", "njia", "tarehe", "deni_kabla", "deni_baada", "aliyehifadhi"]
+    },
+    "Matumizi": {
+      "title": "Expense",
+      "description": "Business expenses tracking",
+      "type": "object",
+      "properties": {
+        "maelezo": { "type": "string" },
+        "kiasi": { "type": "number" },
+        "aina": { "type": "string" },
+        "tarehe": { "type": "string", "format": "date-time" }
+      },
+      "required": ["maelezo", "kiasi", "aina"]
+    }
+  },
+  "firestore": {
+    "/wateja/{mtejaId}": {
+      "schema": "Wateja",
+      "description": "Collection of all customers"
+    },
+    "/wateja/{mtejaId}/historia_malipo/{paymentId}": {
+      "schema": "HistoriaMalipo",
+      "description": "Subcollection for each customer's payment history"
+    },
+    "/expenses/{expenseId}": {
+      "schema": "Matumizi",
+      "description": "General business expenses"
+    }
+  }
+}

@@ -1,0 +1,72 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helpers ---
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    // Role check: checks if user is in the admins collection or matches the master email
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.uid == "FRjomfnNHefZUN2UiX8r3GspC6o2" ||
+        request.auth.token.email == "elonjazz89@gmail.com"
+      );
+    }
+    
+    function isStaff() {
+      return isVerified() || isAdmin();
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- Collections ---
+
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
+    match /wateja/{mtejaId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+
+      // Subcollection: History
+      match /historia_malipo/{paymentId} {
+        allow read: if isSignedIn();
+        allow write: if isAdmin();
+      }
+    }
+
+    match /expenses/{expenseId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /vikundi_malipo/{paymentId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+  }
+}

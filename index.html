@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Google AI Studio App</title>
+    <script>
+      // Suppress noisy MetaMask/extension errors and unhandled rejections
+      const suppressPatterns = [
+        'metamask', 
+        'ethereum', 
+        'provider', 
+        'wallet', 
+        'extension', 
+        'inpage', 
+        'failed to connect', 
+        'connected to metamask',
+        'rpc error',
+        'unrecognized chain',
+        'eth_accounts'
+      ];
+      
+      const shouldSuppress = (args) => {
+        try {
+          const combinedString = args.map(arg => {
+            if (!arg) return '';
+            if (typeof arg === 'string') return arg;
+            if (arg instanceof Error) return arg.message + ' ' + arg.stack;
+            try { return JSON.stringify(arg); } catch (e) { return String(arg); }
+          }).join(' ').toLowerCase();
+          
+          return suppressPatterns.some(pattern => combinedString.includes(pattern.toLowerCase()));
+        } catch (e) {
+          return false;
+        }
+      };
+
+      const originalError = console.error;
+      console.error = (...args) => {
+        if (shouldSuppress(args)) return;
+        originalError.apply(console, args);
+      };
+
+      const originalWarn = console.warn;
+      console.warn = (...args) => {
+        if (shouldSuppress(args)) return;
+        originalWarn.apply(console, args);
+      };
+
+      // Wrap window.onerror as well
+      const originalWindowError = window.onerror;
+      window.onerror = function(message, source, lineno, colno, error) {
+        if (shouldSuppress([message, source, error])) {
+          return true; // prevent default
+        }
+        if (originalWindowError) {
+          return originalWindowError.apply(this, arguments);
+        }
+        return false;
+      };
+
+      window.addEventListener('unhandledrejection', (event) => {
+        if (shouldSuppress([event.reason])) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      }, true);
+
+      window.addEventListener('error', (event) => {
+        if (shouldSuppress([event.message])) {
+          event.preventDefault();
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
