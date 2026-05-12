@@ -235,17 +235,32 @@ export default function App() {
   };
 
   const handleForgotPassword = async () => {
-    if (!email) {
-      toast.error("Tafadhali jaza email kwanza kwenye kisanduku cha email.");
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
+      toast.error("Tafadhali jaza email kwanza kwenye kisanduku cha email.", {
+        description: "Andika email yako kwanza kisha ubonyeze hapa tena."
+      });
       return;
     }
     
+    const toastId = toast.loading("Inatuma email ya kureset password...");
     try {
-      await sendPasswordResetEmail(auth, email);
-      toast.success("Email ya kureset password imetumwa! Angalia inbox yako.");
+      await sendPasswordResetEmail(auth, trimmedEmail);
+      toast.success("Email ya kureset password imetumwa!", {
+        id: toastId,
+        description: "Tafadhali kagua Inbox yako (au Spam folder)."
+      });
     } catch (error: any) {
       console.error("Reset Password Error:", error);
-      toast.error("Imeshindwa kutuma email: " + (error.code || error.message));
+      let message = "Imeshindwa kutuma email.";
+      if (error.code === "auth/user-not-found") message = "Email hii haikuonekana kwenye mfumo wetu.";
+      if (error.code === "auth/invalid-email") message = "Email uliyoingiza siyo sahihi.";
+      if (error.code === "auth/too-many-requests") message = "Maombi mengi yameingia. Subiri kidogo kisha jaribu tena.";
+      
+      toast.error(message, { 
+        id: toastId,
+        description: `Kosa: ${error.code || "Hitilafu ya mtandao"}`
+      });
     }
   };
 
@@ -754,7 +769,7 @@ export default function App() {
                         <button 
                           type="button"
                           onClick={handleForgotPassword}
-                          className="text-[9px] font-black text-indigo-500 uppercase tracking-widest hover:text-indigo-700 transition-colors"
+                          className="text-[10px] font-black text-indigo-500 uppercase tracking-widest hover:text-indigo-700 transition-all py-1 px-2 -mr-2 active:scale-95"
                         >
                           Umesahau?
                         </button>
