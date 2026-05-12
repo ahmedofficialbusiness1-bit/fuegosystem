@@ -80,7 +80,8 @@ import {
   onAuthStateChanged, 
   signOut,
   signInWithEmailAndPassword,
-  createUserWithEmailAndPassword 
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail
 } from "firebase/auth";
 
 import { StatsCharts } from "./components/StatsCharts";
@@ -230,6 +231,21 @@ export default function App() {
       toast.error(message);
     } finally {
       setAuthSubmitting(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast.error("Tafadhali jaza email kwanza kwenye kisanduku cha email.");
+      return;
+    }
+    
+    try {
+      await sendPasswordResetEmail(auth, email);
+      toast.success("Email ya kureset password imetumwa! Angalia inbox yako.");
+    } catch (error: any) {
+      console.error("Reset Password Error:", error);
+      toast.error("Imeshindwa kutuma email: " + (error.code || error.message));
     }
   };
 
@@ -730,7 +746,18 @@ export default function App() {
                   </div>
                   
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Password</label>
+                    <div className="flex items-center justify-between ml-1">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Password</label>
+                      {authMode === "login" && (
+                        <button 
+                          type="button"
+                          onClick={handleForgotPassword}
+                          className="text-[9px] font-black text-indigo-500 uppercase tracking-widest hover:text-indigo-700 transition-colors"
+                        >
+                          Umesahau?
+                        </button>
+                      )}
+                    </div>
                     <div className="relative">
                       <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
                       <Input 
@@ -744,7 +771,7 @@ export default function App() {
                       <button 
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-indigo-500"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-indigo-500 transition-colors"
                       >
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
@@ -765,6 +792,16 @@ export default function App() {
                     : (authMode === "login" ? "Ingia Sasa" : "Tengeneza Akaunti")}
                 </Button>
               </form>
+
+              <div className="text-center -mt-4">
+                <button 
+                  type="button"
+                  onClick={() => setAuthMode(authMode === "login" ? "signup" : "login")}
+                  className="text-[11px] font-black text-indigo-500 uppercase tracking-widest hover:text-indigo-700 transition-colors"
+                >
+                  {authMode === "login" ? "Huna akaunti bado? Jisajili" : "Tayari una akaunti? Ingia"}
+                </button>
+              </div>
 
               <div className="flex items-center gap-4 py-2">
                 <div className="h-px bg-slate-100 flex-1"></div>
@@ -787,10 +824,26 @@ export default function App() {
                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                   </svg>
                 </div>
-                Ingia na Google
+                Quick Login na Google
               </Button>
 
-              <div className="pt-4 text-center">
+              <div className="bg-slate-50 border border-slate-100 rounded-3xl p-6 space-y-4 w-full">
+                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Msaada wa Uingiaji</h4>
+                <div className="space-y-3">
+                  {[
+                    "Hakikisha popups zinaruhusiwa browser yako.",
+                    "Kama Google Login inagoma, fungua mfumo kwenye 'New Tab' (Icon ya juu kulia).",
+                    "Kama umesahau password ya email, tumia kiungo cha 'Umesahau?' hapo juu."
+                  ].map((text, i) => (
+                    <div key={i} className="flex gap-2 items-start text-[11px] text-slate-500 font-medium leading-tight">
+                      <div className="w-1 h-1 bg-indigo-400 rounded-full mt-1.5 flex-shrink-0" />
+                      {text}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="pt-2 text-center">
                  <p className="text-[10px] text-slate-300 font-bold uppercase tracking-widest">
                    &copy; {new Date().getFullYear()} Fuego Business Suite
                  </p>
