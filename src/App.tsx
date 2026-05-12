@@ -81,7 +81,9 @@ import {
   signOut,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  setPersistence,
+  browserLocalPersistence
 } from "firebase/auth";
 
 import { StatsCharts } from "./components/StatsCharts";
@@ -113,8 +115,11 @@ export default function App() {
   const [showPassword, setShowPassword] = useState(false);
   const [authSubmitting, setAuthSubmitting] = useState(false);
 
-  // Auth Listener
+  // Auth Listener & Persistence
   useEffect(() => {
+    // Explicitly set persistence to local
+    setPersistence(auth, browserLocalPersistence).catch(console.error);
+
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       if (!currentUser) {
@@ -173,25 +178,19 @@ export default function App() {
     };
   }, [user]);
 
-  const handleLogin = async (useRedirect = false) => {
+  const handleLogin = async () => {
     try {
       const provider = new GoogleAuthProvider();
-      if (useRedirect) {
-        // Fallback pattern
-        await signInWithPopup(auth, provider);
-      } else {
-        await signInWithPopup(auth, provider);
-      }
+      await signInWithPopup(auth, provider);
       toast.success("Umeingia kwa mafanikio");
     } catch (error: any) {
       console.error("Login Error Details:", error);
       
-      if (error.code === 'auth/popup-blocked') {
-        toast.error("Popup imezuiwa! Tafadhali ruhusu popups kwenye browser yako.");
+      if (error.code === 'auth/popup-blocked' || error.code === 'auth/operation-not-supported-in-this-environment') {
+        toast.error("Popup imezuiwa au haitumiki hapa! Tafadhali fungua mfumo kwenye TAB MPYA kwa kutumia icon ya juu kulia.");
       } else if (error.code === 'auth/unauthorized-domain') {
         toast.error("Domain hii hairuhusiwi! Ongeza '" + window.location.hostname + "' kwenye Firebase Console (Authorized Domains).");
       } else if (error.code === 'auth/cancelled-popup-request' || error.code === 'auth/popup-closed-by-user') {
-        // User closed the popup, silent fail or info toast
         toast.info("Login iliahirishwa.");
       } else {
         toast.error("Kosa la kuingia: " + (error.code || error.message));
@@ -827,21 +826,24 @@ export default function App() {
                 Quick Login na Google
               </Button>
 
-              <div className="bg-slate-50 border border-slate-100 rounded-3xl p-6 space-y-4 w-full">
-                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Msaada wa Uingiaji</h4>
-                <div className="space-y-3">
-                  {[
-                    "Hakikisha popups zinaruhusiwa browser yako.",
-                    "Kama Google Login inagoma, fungua mfumo kwenye 'New Tab' (Icon ya juu kulia).",
-                    "Kama umesahau password ya email, tumia kiungo cha 'Umesahau?' hapo juu."
-                  ].map((text, i) => (
-                    <div key={i} className="flex gap-2 items-start text-[11px] text-slate-500 font-medium leading-tight">
-                      <div className="w-1 h-1 bg-indigo-400 rounded-full mt-1.5 flex-shrink-0" />
-                      {text}
-                    </div>
-                  ))}
+                <div className="bg-orange-50 border border-orange-100 rounded-3xl p-6 space-y-4 w-full">
+                  <h4 className="text-[10px] font-black text-orange-600 uppercase tracking-widest text-center flex items-center justify-center gap-2">
+                    <AlertCircle className="h-3 w-3" />
+                    Muhimu: Matatizo ya Kuingia
+                  </h4>
+                  <div className="space-y-3">
+                    {[
+                      "Kama unatumia simu au browser inakataa, fungua mfumo kwenye TAB MPYA (Tumia icon ya juu kulia).",
+                      "Hakikisha umeruhusu 'Popups' kwenye browser yako.",
+                      "Kuingia kwa Email/Password kunafanya kazi tu kama umeruhusu 'Email/Password' kwenye Firebase Console."
+                    ].map((text, i) => (
+                      <div key={i} className="flex gap-2 items-start text-[11px] text-orange-700 font-medium leading-tight">
+                        <div className="w-1 h-1 bg-orange-400 rounded-full mt-1.5 flex-shrink-0" />
+                        {text}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
               <div className="pt-2 text-center">
                  <p className="text-[10px] text-slate-300 font-bold uppercase tracking-widest">
