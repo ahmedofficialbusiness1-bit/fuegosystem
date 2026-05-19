@@ -17,12 +17,9 @@ service cloud.firestore {
       return isSignedIn() && request.auth.token.email_verified == true;
     }
 
-    // Role check: checks if user is in the admins collection or matches the master email
+    // Role check: Allow any signed in user for now as requested
     function isAdmin() {
-      return isSignedIn() && (
-        request.auth.uid == "FRjomfnNHefZUN2UiX8r3GspC6o2" ||
-        request.auth.token.email == "elonjazz89@gmail.com"
-      );
+      return isSignedIn();
     }
     
     function isStaff() {
