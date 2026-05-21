@@ -1689,6 +1689,7 @@ export default function App() {
           <div className="p-4 sm:p-6">
             <AddCustomerForm 
               inventory={inventory}
+              wateja={wateja}
               initialData={selectedMteja ? {
                 jina: selectedMteja.jina,
                 idadi: selectedMteja.idadi,

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -23,7 +23,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { UNIT_PRICE, RETAIL_PRICE } from "../constants";
 import { cn } from "@/lib/utils";
-import { InventoryItem } from "../types";
+import { InventoryItem, Customer } from "../types";
 
 const formSchema = z.object({
   jina: z.string().min(2, "Jina lazima liwe na herufi angalau 2"),
@@ -43,10 +43,30 @@ interface AddCustomerFormProps {
   onSubmit: (data: any) => void;
   initialData?: any;
   inventory?: InventoryItem[];
+  wateja?: Customer[];
 }
 
-export function AddCustomerForm({ onSubmit: onSubmitProp, initialData, inventory = [] }: AddCustomerFormProps) {
+export function AddCustomerForm({ onSubmit: onSubmitProp, initialData, inventory = [], wateja = [] }: AddCustomerFormProps) {
   const defaultProduct = inventory && inventory.length > 0 ? inventory[0] : null;
+
+  const existingGroups = useMemo(() => {
+    const groupsSet = new Set<string>();
+    // Pre-populate with standard/common options
+    groupsSet.add("Cash");
+    groupsSet.add("Shekha");
+    groupsSet.add("Zap Saccos");
+    groupsSet.add("SHOP");
+    groupsSet.add("Jaji Mahakamani");
+
+    // Add unique groups from existing customers
+    wateja.forEach(m => {
+      if (m.njia_malipo && m.njia_malipo.trim()) {
+        groupsSet.add(m.njia_malipo.trim());
+      }
+    });
+
+    return Array.from(groupsSet);
+  }, [wateja]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema) as any,
@@ -178,11 +198,11 @@ export function AddCustomerForm({ onSubmit: onSubmitProp, initialData, inventory
                         <SelectValue placeholder="" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Cash">Cash (Binafsi)</SelectItem>
-                        <SelectItem value="Shekha">Shekha</SelectItem>
-                        <SelectItem value="Zap Saccos">Zap Saccos</SelectItem>
-                        <SelectItem value="SHOP">SHOP</SelectItem>
-                        <SelectItem value="Jaji Mahakamani">Jaji Mahakamani</SelectItem>
+                        {existingGroups.map((group) => (
+                          <SelectItem key={group} value={group} className="text-xs font-bold text-slate-700">
+                            {group === "Cash" ? "Cash (Binafsi)" : group}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
