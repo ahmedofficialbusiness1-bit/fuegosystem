@@ -436,12 +436,16 @@ export default function App() {
   const handleUpdateCustomer = async (formData: any) => {
     if (!selectedMteja) return;
     try {
-      const hali = calculateHali(formData.kilicholipwa, formData.bei_bidhaa);
-      const deni = calculateDeni(formData.kilicholipwa, formData.bei_bidhaa);
+      const kiasiKipya = Number(formData.malipo_mapya || 0);
+      const mpyaKilicholipwa = Number(formData.kilicholipwa || 0) + kiasiKipya;
+      const hali = calculateHali(mpyaKilicholipwa, formData.bei_bidhaa);
+      const deni = calculateDeni(mpyaKilicholipwa, formData.bei_bidhaa);
       
       const mtejaRef = doc(db, "wateja", selectedMteja.id);
       
       const sanitizedData = { ...formData };
+      delete sanitizedData.malipo_mapya;
+      
       Object.keys(sanitizedData).forEach(key => {
         if (sanitizedData[key] === undefined) {
           sanitizedData[key] = "";
@@ -450,14 +454,31 @@ export default function App() {
 
       await updateDoc(mtejaRef, {
         ...sanitizedData,
+        kilicholipwa: mpyaKilicholipwa,
         hali,
         deni,
         tarehe_kulipwa: hali === PaymentStatus.FULL ? (selectedMteja.tarehe_kulipwa || serverTimestamp()) : null
       });
 
+      // Add to history if a payment was entered
+      if (kiasiKipya > 0) {
+        await addDoc(collection(db, "wateja", selectedMteja.id, "historia_malipo"), {
+          kiasi: kiasiKipya,
+          njia: formData.njia_malipo || "Cash",
+          tarehe: serverTimestamp(),
+          deni_kabla: selectedMteja.deni,
+          deni_baada: deni,
+          aliyehifadhi: auth.currentUser?.email || user?.email || "System"
+        });
+      }
+
       setIsAddingCustomer(false);
       setSelectedMteja(null);
-      toast.success("Taarifa zimebadilishwa");
+      if (kiasiKipya > 0) {
+        toast.success(`Malipo ya TZS ${kiasiKipya.toLocaleString()} yameingizwa na taarifa kubadilishwa.`);
+      } else {
+        toast.success("Taarifa zimebadilishwa");
+      }
     } catch (error: any) {
       console.error("Update customer error:", error);
       const errInfo = error.message.startsWith("{") ? JSON.parse(error.message) : { error: error.message };
@@ -1300,7 +1321,18 @@ export default function App() {
                     <span className="text-xl lg:text-2xl font-black leading-none">
                       {(() => {
                         const item = inventory[0];
-                        const sold = item.jina === "FG 225" ? wateja.reduce((sum, c) => sum + (Number(c.idadi) || 0), 0) : 0;
+                        const sold = wateja.reduce((sum, c) => {
+                          let matches = false;
+                          if (c.bidhaa_id) {
+                            matches = c.bidhaa_id === item.id;
+                          } else {
+                            const normalizedItemJina = item.jina.toLowerCase().replace(/\s+/g, "");
+                            const isDefaultName = normalizedItemJina === "fg225";
+                            const isOnlyItem = inventory.length === 1;
+                            matches = isDefaultName || isOnlyItem;
+                          }
+                          return matches ? sum + (Number(c.idadi) || 0) : sum;
+                        }, 0);
                         return (item.stock_in - sold).toLocaleString();
                       })()}
                     </span>
@@ -1310,12 +1342,25 @@ export default function App() {
                     <span className="text-[10px] font-bold text-orange-200">
                       {(() => {
                         const item = inventory[0];
-                        const sold = item.jina === "FG 225" ? wateja.reduce((sum, c) => sum + (Number(c.idadi) || 0), 0) : 0;
+                        const sold = wateja.reduce((sum, c) => {
+                          let matches = false;
+                          if (c.bidhaa_id) {
+                            matches = c.bidhaa_id === item.id;
+                          } else {
+                            const normalizedItemJina = item.jina.toLowerCase().replace(/\s+/g, "");
+                            const isDefaultName = normalizedItemJina === "fg225";
+                            const isOnlyItem = inventory.length === 1;
+                            matches = isDefaultName || isOnlyItem;
+                          }
+                          return matches ? sum + (Number(c.idadi) || 0) : sum;
+                        }, 0);
                         const remaining = item.stock_in - sold;
-                        return Math.floor(remaining / item.pcs_per_carton).toLocaleString();
-                      })()} CTN
+                        const ctn = Math.floor(remaining / item.pcs_per_carton);
+                        const loose = remaining % item.pcs_per_carton;
+                        return loose > 0 ? `${ctn.toLocaleString()} CTN + ${loose} PCS` : `${ctn.toLocaleString()} CTN`;
+                      })()}
                     </span>
-                    <span className="text-[8px] text-indigo-300 font-medium uppercase tracking-widest opacity-60">Iliyopo Stoo</span>
+                    <span className="text-[8px] text-indigo-300 font-medium uppercase tracking-widest opacity-60">Stoo sasa</span>
                   </div>
                 </div>
               </div>
@@ -1574,6 +1619,7 @@ export default function App() {
                   onUpdate={handleUpdateInventory}
                   onDelete={handleDeleteInventory}
                   totalSoldPcs={wateja.reduce((sum, c) => sum + (Number(c.idadi) || 0), 0)}
+                  wateja={wateja}
                 />
               ) : (
                 <WatejaTable 
@@ -1642,6 +1688,7 @@ export default function App() {
           </div>
           <div className="p-4 sm:p-6">
             <AddCustomerForm 
+              inventory={inventory}
               initialData={selectedMteja ? {
                 jina: selectedMteja.jina,
                 idadi: selectedMteja.idadi,
@@ -1649,7 +1696,9 @@ export default function App() {
                 kilicholipwa: selectedMteja.kilicholipwa,
                 njia_malipo: selectedMteja.njia_malipo,
                 maelezo: selectedMteja.maelezo || "",
-                simu: selectedMteja.simu || ""
+                simu: selectedMteja.simu || "",
+                bidhaa_id: selectedMteja.bidhaa_id || "",
+                bidhaa_jina: selectedMteja.bidhaa_jina || ""
               } : prefferedGroup ? { 
                 njia_malipo: prefferedGroup,
                 idadi: 1,

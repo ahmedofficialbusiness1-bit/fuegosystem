@@ -23,6 +23,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { UNIT_PRICE, RETAIL_PRICE } from "../constants";
 import { cn } from "@/lib/utils";
+import { InventoryItem } from "../types";
 
 const formSchema = z.object({
   jina: z.string().min(2, "Jina lazima liwe na herufi angalau 2"),
@@ -30,17 +31,23 @@ const formSchema = z.object({
   bei_kila_moja: z.coerce.number().min(0),
   bei_bidhaa: z.coerce.number().min(0),
   kilicholipwa: z.coerce.number().min(0, "Kilicholipwa hakiwezi kuwa negative"),
+  malipo_mapya: z.coerce.number().min(0, "Malipo mapya hayawezi kuwa negative").optional(),
   njia_malipo: z.string().min(1, "Chagua kikundi"),
   simu: z.string().optional(),
   maelezo: z.string().optional(),
+  bidhaa_id: z.string().optional(),
+  bidhaa_jina: z.string().optional(),
 });
 
 interface AddCustomerFormProps {
-  onSubmit: (data: z.infer<typeof formSchema>) => void;
+  onSubmit: (data: any) => void;
   initialData?: any;
+  inventory?: InventoryItem[];
 }
 
-export function AddCustomerForm({ onSubmit: onSubmitProp, initialData }: AddCustomerFormProps) {
+export function AddCustomerForm({ onSubmit: onSubmitProp, initialData, inventory = [] }: AddCustomerFormProps) {
+  const defaultProduct = inventory && inventory.length > 0 ? inventory[0] : null;
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema) as any,
     defaultValues: initialData ? {
@@ -49,18 +56,24 @@ export function AddCustomerForm({ onSubmit: onSubmitProp, initialData }: AddCust
       bei_kila_moja: Number(initialData.idadi) > 0 ? (Number(initialData.bei_bidhaa) / Number(initialData.idadi)) : UNIT_PRICE,
       bei_bidhaa: Number(initialData.bei_bidhaa) || UNIT_PRICE,
       kilicholipwa: Number(initialData.kilicholipwa) || 0,
+      malipo_mapya: 0,
       njia_malipo: initialData.njia_malipo || "Cash",
       simu: initialData.simu || "",
       maelezo: initialData.maelezo || "",
+      bidhaa_id: initialData.bidhaa_id || defaultProduct?.id || "",
+      bidhaa_jina: initialData.bidhaa_jina || defaultProduct?.jina || "",
     } : {
       jina: "",
       idadi: 1,
-      bei_kila_moja: UNIT_PRICE,
-      bei_bidhaa: UNIT_PRICE,
+      bei_kila_moja: defaultProduct?.bei_yake || UNIT_PRICE,
+      bei_bidhaa: defaultProduct?.bei_yake || UNIT_PRICE,
       kilicholipwa: 0,
+      malipo_mapya: 0,
       njia_malipo: "Cash",
       simu: "",
       maelezo: "",
+      bidhaa_id: defaultProduct?.id || "",
+      bidhaa_jina: defaultProduct?.jina || "",
     },
   });
 
@@ -104,6 +117,47 @@ export function AddCustomerForm({ onSubmit: onSubmitProp, initialData }: AddCust
             </FormItem>
           )}
         />
+
+        {inventory && inventory.length > 0 && (
+          <FormField
+            control={form.control}
+            name="bidhaa_id"
+            render={({ field }) => (
+              <FormItem className="space-y-0.5">
+                <FormLabel className="text-[10px] font-black uppercase tracking-widest text-indigo-500">Chagua Bidhaa Iliyouzwa</FormLabel>
+                <Select
+                  onValueChange={(val) => {
+                    const selectedItem = inventory.find(item => item.id === val);
+                    if (selectedItem) {
+                      form.setValue("bidhaa_id", val);
+                      form.setValue("bidhaa_jina", selectedItem.jina);
+                      
+                      // Auto-populate unit price
+                      form.setValue("bei_kila_moja", selectedItem.bei_yake);
+                      const currentQty = Number(form.getValues("idadi")) || 1;
+                      form.setValue("bei_bidhaa", currentQty * selectedItem.bei_yake);
+                    }
+                  }}
+                  value={field.value || ""}
+                >
+                  <FormControl>
+                    <SelectTrigger className="h-9 text-[13px] font-bold py-0 px-3 bg-indigo-50/30 border-indigo-100">
+                      <SelectValue placeholder="Chagua bidhaa..." />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {inventory.map((item) => (
+                      <SelectItem key={item.id} value={item.id} className="text-xs font-bold text-slate-700">
+                        {item.jina} (TZS {item.bei_yake.toLocaleString()})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage className="text-[9px] font-bold" />
+              </FormItem>
+            )}
+          />
+        )}
 
         <FormField
           control={form.control}
@@ -251,21 +305,85 @@ export function AddCustomerForm({ onSubmit: onSubmitProp, initialData }: AddCust
         />
 
 
-        <div className="grid grid-cols-2 gap-3">
-          <FormField
-            control={form.control}
-            name="kilicholipwa"
-            render={({ field }) => (
-              <FormItem className="space-y-0.5">
-                <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-none">Kiasi kilicholipwa</FormLabel>
-                <FormControl>
-                  <Input type="number" {...field} className="h-9 text-[13px] font-black tabular-nums px-3 bg-slate-50/50" />
-                </FormControl>
-                <FormMessage className="text-[9px] font-bold" />
-              </FormItem>
-            )}
-          />
+        {initialData ? (
+          <div className="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100/50 space-y-3 my-2">
+            <p className="text-[10px] font-black text-indigo-700 uppercase tracking-widest leading-none">Marekebisho ya Hesabu & Malipo Mapya</p>
+            <div className="grid grid-cols-2 gap-2 text-xs font-bold text-slate-600">
+              <div>
+                <span className="text-[9px] text-slate-400 block font-normal uppercase">Kiasi kilicholipwa awali</span>
+                <span className="text-[13px] font-black text-slate-800">TZS {Number(initialData.kilicholipwa || 0).toLocaleString()}</span>
+              </div>
+              <div>
+                <span className="text-[9px] text-slate-400 block font-normal uppercase">Deni la sasa</span>
+                <span className="text-[13px] font-black text-red-600">TZS {Number(initialData.deni || 0).toLocaleString()}</span>
+              </div>
+            </div>
 
+            <div className="grid grid-cols-2 gap-3 pt-1">
+              <FormField
+                control={form.control}
+                name="malipo_mapya"
+                render={({ field }) => (
+                  <FormItem className="space-y-0.5">
+                    <FormLabel className="text-[10px] font-black uppercase tracking-widest text-emerald-700 leading-none">Muingize Kiasi Hapa</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        placeholder="Weka kiasi kilicholipwa sasa..." 
+                        {...field} 
+                        className="h-9 text-[13px] font-black border-emerald-200 focus:border-emerald-500 bg-white"
+                      />
+                    </FormControl>
+                    <FormMessage className="text-[9px] font-bold" />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="kilicholipwa"
+                render={({ field }) => (
+                  <FormItem className="space-y-0.5">
+                    <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-none">Sahihisha Cha Mwanzoni</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        {...field} 
+                        className="h-9 text-[13px] font-bold bg-white"
+                      />
+                    </FormControl>
+                    <FormMessage className="text-[9px] font-bold" />
+                  </FormItem>
+                )}
+              />
+            </div>
+            
+            <div className="flex justify-between items-center text-[10px] bg-white px-3 py-2 rounded-xl border border-indigo-50/50">
+              <span className="font-bold text-slate-400 uppercase">Jumla Itakayolipwa sasa</span>
+              <span className="font-black text-indigo-700 text-xs text-right">
+                TZS {((Number(form.watch("kilicholipwa")) || 0) + (Number(form.watch("malipo_mapya")) || 0)).toLocaleString()}
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-3">
+            <FormField
+              control={form.control}
+              name="kilicholipwa"
+              render={({ field }) => (
+                <FormItem className="space-y-0.5">
+                  <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-none">Kiasi kilicholipwa</FormLabel>
+                  <FormControl>
+                    <Input type="number" {...field} className="h-9 text-[13px] font-black tabular-nums px-3 bg-slate-50/50" />
+                  </FormControl>
+                  <FormMessage className="text-[9px] font-bold" />
+                </FormItem>
+              )}
+            />
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 gap-3">
           <FormField
             control={form.control}
             name="simu"

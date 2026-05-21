@@ -29,6 +29,8 @@ export interface Customer {
   tarehe_kulipwa?: any | null; // Firestore Timestamp
   maelezo?: string;
   simu?: string;
+  bidhaa_id?: string;
+  bidhaa_jina?: string;
 }
 
 export interface Expense {

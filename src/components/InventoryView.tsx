@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Package, Ruler, Trash2, Edit3, Save, CheckCircle2 } from "lucide-react";
-import { InventoryItem } from "../types";
+import { InventoryItem, Customer } from "../types";
 import { motion } from "framer-motion";
 
 interface InventoryViewProps {
@@ -12,9 +12,10 @@ interface InventoryViewProps {
   onUpdate: (id: string, data: Partial<InventoryItem>) => void;
   onDelete: (id: string) => void;
   totalSoldPcs: number;
+  wateja?: Customer[];
 }
 
-export function InventoryView({ inventory, onAdd, onUpdate, onDelete, totalSoldPcs }: InventoryViewProps) {
+export function InventoryView({ inventory, onAdd, onUpdate, onDelete, totalSoldPcs, wateja = [] }: InventoryViewProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<InventoryItem>>({
@@ -120,9 +121,22 @@ export function InventoryView({ inventory, onAdd, onUpdate, onDelete, totalSoldP
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {inventory.map(item => {
-          const sold = item.jina === "FG 225" ? totalSoldPcs : 0; 
+          const sold = wateja.reduce((sum, c) => {
+            let matches = false;
+            if (c.bidhaa_id) {
+              matches = c.bidhaa_id === item.id;
+            } else {
+              const normalizedItemJina = item.jina.toLowerCase().replace(/\s+/g, "");
+              const isDefaultName = normalizedItemJina === "fg225";
+              const isOnlyItem = inventory.length === 1;
+              matches = isDefaultName || isOnlyItem;
+            }
+            return matches ? sum + (Number(c.idadi) || 0) : sum;
+          }, 0);
+
           const remaining = item.stock_in - sold;
           const cartonsSold = Math.floor(sold / item.pcs_per_carton);
+          const pcsInLooseSold = sold % item.pcs_per_carton;
           const cartonsRemaining = Math.floor(remaining / item.pcs_per_carton);
           const pcsInLooseRemaining = remaining % item.pcs_per_carton;
 
@@ -177,7 +191,10 @@ export function InventoryView({ inventory, onAdd, onUpdate, onDelete, totalSoldP
                         <div className="w-1.5 h-1.5 bg-orange-500 rounded-full"></div>
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Carton Zilizoenda</p>
                       </div>
-                      <p className="text-sm font-black text-slate-700">{cartonsSold.toLocaleString()} <span className="text-[8px]">CTN</span></p>
+                      <div className="text-right">
+                        <p className="text-sm font-black text-slate-700">{cartonsSold.toLocaleString()} <span className="text-[8px]">CTN</span></p>
+                        {pcsInLooseSold > 0 && <p className="text-[8px] text-orange-400 font-bold">+{pcsInLooseSold} PCS LOOSE</p>}
+                      </div>
                     </div>
                     <div className="h-px bg-slate-50"></div>
                     <div className="flex items-center justify-between">
