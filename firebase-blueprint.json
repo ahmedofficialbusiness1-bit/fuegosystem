@@ -44,6 +44,19 @@
         "tarehe": { "type": "string", "format": "date-time" }
       },
       "required": ["maelezo", "kiasi", "aina"]
+    },
+    "Inventory": {
+      "title": "Inventory Item",
+      "description": "Stock items and their current count",
+      "type": "object",
+      "properties": {
+        "jina": { "type": "string" },
+        "stock_in": { "type": "number" },
+        "pcs_per_carton": { "type": "number" },
+        "bei_yake": { "type": "number" },
+        "tarehe_kuongezwa": { "type": "string", "format": "date-time" }
+      },
+      "required": ["jina", "stock_in", "pcs_per_carton"]
     }
   },
   "firestore": {
@@ -58,6 +71,10 @@
     "/expenses/{expenseId}": {
       "schema": "Matumizi",
       "description": "General business expenses"
+    },
+    "/inventory/{itemId}": {
+      "schema": "Inventory",
+      "description": "Product stock management"
     }
   }
 }

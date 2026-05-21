@@ -38,3 +38,12 @@ export interface Expense {
   aina: string; // e.g., Chakula, Usafiri, Kodi
   tarehe: any; // Firestore Timestamp
 }
+
+export interface InventoryItem {
+  id: string;
+  jina: string;
+  stock_in: number;
+  pcs_per_carton: number;
+  bei_yake: number;
+  tarehe_kuongezwa: any;
+}

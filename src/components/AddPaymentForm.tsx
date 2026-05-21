@@ -46,107 +46,106 @@ export function AddPaymentForm({ mteja, onSubmit }: AddPaymentFormProps) {
   });
 
   return (
-    <div className="space-y-6 py-4">
-      <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-        <h4 className="font-semibold text-[#1A237E]">{mteja.jina}</h4>
-        <div className="flex justify-between text-sm mt-1">
-          <span className="text-gray-500">Deni lililopo:</span>
-          <span className="font-bold text-red-600">{mteja.deni.toLocaleString()} {APP_CONFIG.currency}</span>
+    <div className="space-y-4 py-2">
+      <div className="bg-indigo-50 p-3 rounded-xl border border-indigo-100 flex justify-between items-center">
+        <div>
+          <h4 className="font-black text-[#1A237E] text-xs uppercase tracking-tight">{mteja.jina}</h4>
+          <p className="text-[9px] font-bold text-indigo-400 uppercase tracking-widest">{mteja.njia_malipo || "Binafsi"}</p>
         </div>
-        <div className="flex justify-between text-sm mt-1">
-          <span className="text-gray-500">Jumla ya bei:</span>
-          <span className="font-bold">{mteja.bei_bidhaa.toLocaleString()} {APP_CONFIG.currency}</span>
+        <div className="text-right">
+          <span className="text-[8px] font-black text-slate-400 uppercase block">Deni Lililopo</span>
+          <span className="font-black text-red-600 text-sm">{mteja.deni.toLocaleString()}</span>
         </div>
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
           <FormField
             control={form.control}
             name="kiasi"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex justify-between items-center">
-                   <span>Kiasi cha Malipo Kipya (TZS)</span>
+              <FormItem className="space-y-1">
+                <FormLabel className="flex justify-between items-center text-[10px] font-black uppercase text-slate-500 tracking-widest">
+                   <span>Kiasi cha Malipo (TZS)</span>
                    <Button 
                     type="button" 
                     variant="link" 
-                    className="h-auto p-0 text-[10px] text-indigo-600 font-bold"
+                    className="h-auto p-0 text-[9px] text-indigo-600 font-black uppercase tracking-tighter"
                     onClick={() => form.setValue("kiasi", Number(mteja.deni))}
                    >
-                     LIPA DENI LOTE
+                     LIPA YOTE
                    </Button>
                 </FormLabel>
                 <FormControl>
-                  <div className="relative">
-                    <Input 
-                      type="number" 
-                      placeholder="50000" 
-                      {...field} 
-                      value={isNaN(Number(field.value)) ? "" : field.value}
-                      className="h-12 text-lg font-bold tabular-nums" 
-                    />
-                  </div>
+                  <Input 
+                    type="number" 
+                    placeholder="0" 
+                    {...field} 
+                    value={isNaN(Number(field.value)) ? "" : field.value}
+                    className="h-11 rounded-xl bg-slate-50 border-slate-100 font-bold tabular-nums text-sm focus:ring-indigo-500" 
+                  />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-[9px]" />
               </FormItem>
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="njia"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Njia ya Malipo</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value || "Cash"}>
+          <div className="grid grid-cols-2 gap-3">
+            <FormField
+              control={form.control}
+              name="njia"
+              render={({ field }) => (
+                <FormItem className="space-y-1">
+                  <FormLabel className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Njia</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value || "Cash"}>
+                    <FormControl>
+                      <SelectTrigger className="h-10 rounded-xl bg-slate-50 border-slate-100 text-[11px] font-bold">
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent className="rounded-xl">
+                      <SelectItem value="Cash" className="text-xs">Cash</SelectItem>
+                      <SelectItem value="Shekha" className="text-xs">Shekha</SelectItem>
+                      <SelectItem value="Zap Saccos" className="text-xs">Zap Saccos</SelectItem>
+                      <SelectItem value="SHOP" className="text-xs">SHOP</SelectItem>
+                      <SelectItem value="Jaji Mahakamani" className="text-xs">Jaji</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage className="text-[9px]" />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="tarehe"
+              render={({ field }) => (
+                <FormItem className="space-y-1">
+                  <FormLabel className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Tarehe</FormLabel>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Chagua..." />
-                    </SelectTrigger>
+                    <Input type="datetime-local" {...field} value={field.value || ""} className="h-10 rounded-xl bg-slate-50 border-slate-100 text-[10px] font-bold px-2" />
                   </FormControl>
-                  <SelectContent>
-                    <SelectItem value="Cash">Cash</SelectItem>
-                    <SelectItem value="Shekha">Shekha</SelectItem>
-                    <SelectItem value="Zap Saccos">Zap Saccos</SelectItem>
-                    <SelectItem value="SHOP">SHOP</SelectItem>
-                    <SelectItem value="Jaji Mahakamani">Jaji Mahakamani</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="tarehe"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tarehe na Saa ya Malipo</FormLabel>
-                <FormControl>
-                  <Input type="datetime-local" {...field} value={field.value || ""} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  <FormMessage className="text-[9px]" />
+                </FormItem>
+              )}
+            />
+          </div>
 
           <FormField
             control={form.control}
             name="maelezo"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Maelezo (Optional)</FormLabel>
+              <FormItem className="space-y-1">
+                <FormLabel className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Maelezo</FormLabel>
                 <FormControl>
-                  <Textarea placeholder="Kumbukumbu fupi..." {...field} value={field.value || ""} />
+                  <Input placeholder="Optional..." {...field} value={field.value || ""} className="h-10 rounded-xl bg-slate-50 border-slate-100 text-[11px]" />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-[9px]" />
               </FormItem>
             )}
           />
 
-          <Button type="submit" className="w-full bg-[#1B5E20] hover:bg-[#154618]">Hifadhi Malipo</Button>
+          <Button type="submit" className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 font-black text-xs uppercase tracking-[0.2em] rounded-xl shadow-lg mt-2">Hifadhi Malipo</Button>
         </form>
       </Form>
     </div>

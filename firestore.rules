@@ -61,6 +61,11 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    match /inventory/{itemId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
     match /vikundi_malipo/{paymentId} {
       allow read: if isSignedIn();
       allow write: if isAdmin();

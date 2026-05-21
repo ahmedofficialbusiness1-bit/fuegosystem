@@ -288,32 +288,32 @@ export function VikundiView({ wateja, onUpdateWateja, onEditMember, onAddMemberT
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+    <div className="space-y-4 sm:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-sm border border-slate-100">
         <div>
-          <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
-            <Users className="h-5 w-5 text-indigo-500" />
-            Usimamizi wa Vikundi
+          <h2 className="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2">
+            <Users className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-500" />
+            Vikundi
           </h2>
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Orodha na malipo ya pamoja kwa vikundi</p>
+          <p className="text-[8px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest mt-0.5">Orodha na malipo ya pamoja</p>
         </div>
         
-        <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+        <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+          <div className="relative w-full sm:w-60">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
             <Input 
-              placeholder="Tafuta jina la kikundi..." 
-              className="pl-10 h-11 rounded-xl bg-slate-50 border-none focus-visible:ring-indigo-500 shadow-inner"
+              placeholder="Tafuta kikundi..." 
+              className="pl-9 h-10 rounded-xl bg-slate-50 border-none focus-visible:ring-indigo-500 shadow-inner text-xs"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
 
-          <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl w-full sm:w-auto">
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl w-full sm:w-auto overflow-x-auto scrollbar-hide">
             <button 
               onClick={() => setSortBy("paid")}
               className={cn(
-                "flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all",
+                "flex-1 sm:flex-none px-2 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
                 sortBy === "paid" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:bg-white/50"
               )}
             >
@@ -322,7 +322,7 @@ export function VikundiView({ wateja, onUpdateWateja, onEditMember, onAddMemberT
             <button 
               onClick={() => setSortBy("percent")}
               className={cn(
-                "flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all",
+                "flex-1 sm:flex-none px-2 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
                 sortBy === "percent" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:bg-white/50"
               )}
             >
@@ -331,7 +331,7 @@ export function VikundiView({ wateja, onUpdateWateja, onEditMember, onAddMemberT
             <button 
               onClick={() => setSortBy("name")}
               className={cn(
-                "flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all",
+                "flex-1 sm:flex-none px-2 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
                 sortBy === "name" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:bg-white/50"
               )}
             >
@@ -341,30 +341,29 @@ export function VikundiView({ wateja, onUpdateWateja, onEditMember, onAddMemberT
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {filteredGroups.map(group => {
           const isExpanded = viewingMembers === group.name;
           
           return (
             <Card key={group.name} className={cn(
-              "rounded-3xl border-none shadow-sm overflow-hidden group hover:shadow-md transition-all duration-300 bg-white",
-              isExpanded && "md:col-span-2 lg:col-span-3 ring-2 ring-indigo-500 shadow-xl"
+              "rounded-2xl sm:rounded-3xl border-none shadow-sm overflow-hidden group hover:shadow-md transition-all duration-300 bg-white",
+              isExpanded && "md:col-span-2 lg:col-span-3 ring-2 ring-indigo-500 shadow-lg"
             )}>
-              <CardHeader className="bg-slate-50 border-b border-slate-100 px-6 py-4 flex flex-row items-center justify-between">
+              <CardHeader className="bg-slate-50 border-b border-slate-100 px-4 sm:px-6 py-3 sm:py-4 flex flex-row items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="p-1.5 bg-white rounded-lg border border-slate-200">
-                     <Users className="h-4 w-4 text-indigo-600" />
+                  <div className="p-1 sm:p-1.5 bg-white rounded-lg border border-slate-200">
+                     <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-indigo-600" />
                   </div>
-                  <CardTitle className="text-sm font-black uppercase tracking-tight text-slate-900 truncate max-w-[200px]">
+                  <CardTitle className="text-xs sm:text-sm font-black uppercase tracking-tight text-slate-900 truncate max-w-[150px] sm:max-w-[200px]">
                     {group.name}
                   </CardTitle>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <Dialog open={isPriceOpen && selectedGroup === group.name} onOpenChange={(open) => {
                     setIsPriceOpen(open);
                     if (open) {
                       setSelectedGroup(group.name);
-                      // Pre-fill with existing unit price if common
                       const firstMember = group.members[0];
                       if (firstMember?.bei_kila_moja) {
                         const price = Number(firstMember.bei_kila_moja);
@@ -379,35 +378,34 @@ export function VikundiView({ wateja, onUpdateWateja, onEditMember, onAddMemberT
                         <Button 
                           variant="ghost" 
                           size="icon" 
-                          className="h-8 w-8 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-indigo-600"
+                          className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-indigo-600"
                         />
                       }
                     >
-                      <CircleDollarSign className="h-4 w-4" />
+                      <CircleDollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     </DialogTrigger>
-                    <DialogContent className="rounded-3xl sm:max-w-md">
+                    <DialogContent className="rounded-2xl sm:rounded-3xl sm:max-w-md w-[95vw] sm:w-[500px]">
                       <DialogHeader>
-                        <DialogTitle className="text-lg font-black uppercase tracking-tight flex items-center gap-2">
-                          <CircleDollarSign className="h-5 w-5 text-indigo-600" />
-                          Weka Bei ya Kikundi: {group.name}
+                        <DialogTitle className="text-base sm:text-lg font-black uppercase tracking-tight flex items-center gap-2">
+                          <CircleDollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-600" />
+                          Bei ya Kikundi
                         </DialogTitle>
                       </DialogHeader>
-                      <div className="space-y-6 py-4">
+                      <div className="space-y-4 py-2 sm:py-4">
                         <div className="space-y-2">
-                          <Label className="text-[10px] font-black uppercase text-slate-500">Bei kwa Kila Bidhaa (Unit Price)</Label>
+                          <Label className="text-[10px] font-black uppercase text-slate-500">Unit Price (TZS)</Label>
                           <Input 
                             type="number" 
                             placeholder="Mfano: 2000" 
-                            className="h-14 text-2xl font-black tabular-nums border-slate-200 focus:border-indigo-500 bg-slate-50"
+                            className="h-12 sm:h-14 text-xl sm:text-2xl font-black tabular-nums border-slate-200 focus:border-indigo-500 bg-slate-50"
                             value={unitPrice || ""}
                             onChange={(e) => setUnitPrice(e.target.value)}
                           />
-                          <p className="text-[10px] text-slate-400 font-medium leading-relaxed">Hii itabadilisha bei ya bidhaa kwa wanachama wote {group.members.length} wa kikundi hiki. Itahesabu upya jumla na madeni yao.</p>
                         </div>
                       </div>
-                      <DialogFooter className="gap-2 sm:gap-0">
+                      <DialogFooter className="flex-col sm:flex-row gap-2">
                         <Button variant="outline" className="rounded-xl font-black text-[10px] uppercase border-slate-100" onClick={() => setIsPriceOpen(false)}>Ghairi</Button>
-                        <Button className="rounded-xl bg-indigo-600 hover:bg-indigo-700 h-11 px-8 font-black text-[10px] uppercase tracking-widest" onClick={handleGroupPriceSync}>Sasisha Bei</Button>
+                        <Button className="rounded-xl bg-indigo-600 hover:bg-indigo-700 h-10 sm:h-11 font-black text-[10px] uppercase tracking-widest" onClick={handleGroupPriceSync}>Sasisha</Button>
                       </DialogFooter>
                     </DialogContent>
                   </Dialog>
@@ -415,45 +413,45 @@ export function VikundiView({ wateja, onUpdateWateja, onEditMember, onAddMemberT
                   <Button 
                     variant="ghost" 
                     size="icon" 
-                    className="h-8 w-8 rounded-lg hover:bg-indigo-50 text-indigo-600"
+                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-indigo-50 text-indigo-600"
                     onClick={() => onAddMemberToGroup(group.name)}
                   >
-                    <UserPlus className="h-4 w-4" />
+                    <UserPlus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   </Button>
-                  <span className="text-[10px] font-black bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full uppercase">
-                    {group.members.length} Watu
+                  <span className="text-[8px] sm:text-[10px] font-black bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full uppercase">
+                    {group.members.length}
                   </span>
                 </div>
               </CardHeader>
               <CardContent className="p-0">
-                <div className={cn("p-6 space-y-4", isExpanded && "border-b border-slate-100")}>
-                  <div className="grid grid-cols-3 gap-4">
+                <div className={cn("p-4 sm:p-6 space-y-4", isExpanded && "border-b border-slate-100")}>
+                  <div className="grid grid-cols-3 gap-2 sm:gap-4">
                     <div className="space-y-1">
-                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Jumla ya Pcs</span>
-                      <div className="flex items-center gap-2">
+                      <span className="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase tracking-widest block">Pcs</span>
+                      <div className="flex items-center gap-1.5">
                         <Package className="h-3 w-3 text-slate-400" />
-                        <span className="text-sm font-black tabular-nums">{group.totalPcs.toLocaleString()}</span>
+                        <span className="text-xs sm:text-sm font-black tabular-nums">{group.totalPcs.toLocaleString()}</span>
                       </div>
                     </div>
                     <div className="space-y-1">
-                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Kilicholipwa</span>
-                      <div className="flex items-center gap-2">
+                      <span className="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase tracking-widest block">Lipiwa</span>
+                      <div className="flex items-center gap-1.5">
                         <CircleDollarSign className="h-3 w-3 text-emerald-500" />
-                        <span className="text-sm font-black tabular-nums">{group.totalPaid.toLocaleString()}</span>
+                        <span className="text-xs sm:text-sm font-black tabular-nums">{group.totalPaid.toLocaleString()}</span>
                       </div>
                     </div>
                     <div className="space-y-1 text-right">
-                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Madeni</span>
-                      <div className="flex items-center gap-2 justify-end">
+                      <span className="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase tracking-widest block">Madeni</span>
+                      <div className="flex items-center gap-1.5 justify-end">
                         <TrendingDown className="h-3 w-3 text-red-500" />
-                        <span className="text-sm font-black tabular-nums text-red-600">{group.totalDebt.toLocaleString()}</span>
+                        <span className="text-xs sm:text-sm font-black tabular-nums text-red-600">{group.totalDebt.toLocaleString()}</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="space-y-2 pt-2">
-                    <div className="flex justify-between items-center text-[10px] font-black uppercase">
-                      <span className="text-slate-400">Maendeleo ya Malipo</span>
+                  <div className="space-y-1.5 pt-1">
+                    <div className="flex justify-between items-center text-[9px] font-black uppercase">
+                      <span className="text-slate-400">Malipo</span>
                       <span className={cn(
                         group.paymentPercentage >= 100 ? "text-emerald-600" : 
                         group.paymentPercentage > 50 ? "text-indigo-600" : "text-amber-600"
@@ -461,7 +459,7 @@ export function VikundiView({ wateja, onUpdateWateja, onEditMember, onAddMemberT
                         {group.paymentPercentage.toFixed(1)}%
                       </span>
                     </div>
-                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="w-full h-1.5 sm:h-2 bg-slate-100 rounded-full overflow-hidden">
                       <div 
                         className={cn(
                           "h-full transition-all duration-1000",
@@ -473,7 +471,7 @@ export function VikundiView({ wateja, onUpdateWateja, onEditMember, onAddMemberT
                     </div>
                   </div>
 
-                  <div className="pt-4 flex items-center gap-2">
+                  <div className="pt-2 sm:pt-4 flex items-center gap-2">
                     <Dialog open={isPayOpen && selectedGroup === group.name} onOpenChange={(open) => {
                       setIsPayOpen(open);
                       if (open) setSelectedGroup(group.name);
@@ -481,45 +479,44 @@ export function VikundiView({ wateja, onUpdateWateja, onEditMember, onAddMemberT
                       <DialogTrigger 
                         render={
                           <Button 
-                            className="flex-1 rounded-xl h-11 bg-indigo-600 hover:bg-indigo-700 font-black text-[11px] uppercase tracking-widest gap-2 shadow-sm"
+                            className="flex-1 rounded-xl h-10 sm:h-11 bg-indigo-600 hover:bg-indigo-700 font-black text-[9px] sm:text-[11px] uppercase tracking-widest gap-2 shadow-sm"
                           />
                         }
                       >
-                        <HandCoins className="h-4 w-4" /> Ingiza Malipo ya Pamoja
+                        <HandCoins className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Ingiza Malipo
                       </DialogTrigger>
-                      <DialogContent className="rounded-3xl sm:max-w-md">
+                      <DialogContent className="rounded-2xl sm:rounded-3xl sm:max-w-md w-[95vw] sm:w-[500px]">
                         <DialogHeader>
-                          <DialogTitle className="text-lg font-black uppercase tracking-tight flex items-center gap-2">
-                            <HandCoins className="h-5 w-5 text-indigo-600" />
-                            Malipo ya Kikundi: {group.name}
+                          <DialogTitle className="text-base sm:text-lg font-black uppercase tracking-tight flex items-center gap-2">
+                            <HandCoins className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-600" />
+                            Lipia Kikundi
                           </DialogTitle>
                         </DialogHeader>
-                        <div className="space-y-6 py-4">
+                        <div className="space-y-4 py-2 sm:py-4">
                           <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase text-slate-500">Kiasi cha Pesa (TZS)</Label>
+                            <Label className="text-[10px] font-black uppercase text-slate-500">Kiasi (TZS)</Label>
                             <Input 
                               type="number" 
                               placeholder="Mfano: 500,000" 
-                              className="h-14 text-2xl font-black tabular-nums border-slate-200 focus:border-indigo-500 bg-slate-50"
+                              className="h-12 sm:h-14 text-xl sm:text-2xl font-black tabular-nums border-slate-200 focus:border-indigo-500 bg-slate-50"
                               value={amountToPay || ""}
                               onChange={(e) => setAmountToPay(e.target.value)}
                             />
-                            <p className="text-[10px] text-slate-400 font-medium leading-relaxed">Pesa hii itagawanywa kiotomatiki kwa wanachama {group.members.length} kulingana na idadi ya bidhaa walizochukua.</p>
                           </div>
 
                           <div className="space-y-2">
-                             <Label className="text-[10px] font-black uppercase text-slate-500">Tarehe ya Malipo</Label>
+                             <Label className="text-[10px] font-black uppercase text-slate-500">Tarehe</Label>
                              <Input 
                                type="datetime-local" 
-                               className="h-12 border-slate-200 focus:border-indigo-500 bg-slate-50"
+                               className="h-10 sm:h-12 border-slate-200 focus:border-indigo-500 bg-slate-50 text-xs"
                                value={paymentDate}
                                onChange={(e) => setPaymentDate(e.target.value)}
                              />
                           </div>
                         </div>
-                        <DialogFooter className="gap-2 sm:gap-0">
+                        <DialogFooter className="flex-col sm:flex-row gap-2">
                           <Button variant="outline" className="rounded-xl font-black text-[10px] uppercase border-slate-100" onClick={() => setIsPayOpen(false)}>Ghairi</Button>
-                          <Button className="rounded-xl bg-emerald-600 hover:bg-emerald-700 h-11 px-8 font-black text-[10px] uppercase tracking-widest" onClick={handleGroupPayment}>Gawa Sasa</Button>
+                          <Button className="rounded-xl bg-emerald-600 hover:bg-emerald-700 h-10 sm:h-11 font-black text-[10px] uppercase tracking-widest" onClick={handleGroupPayment}>Gawa Sasa</Button>
                         </DialogFooter>
                       </DialogContent>
                     </Dialog>
@@ -527,7 +524,7 @@ export function VikundiView({ wateja, onUpdateWateja, onEditMember, onAddMemberT
                     <Button 
                       variant="outline" 
                       className={cn(
-                        "h-11 px-4 rounded-xl border-slate-100 font-black text-[10px] uppercase tracking-widest gap-2",
+                        "h-10 sm:h-11 px-3 sm:px-4 rounded-xl border-slate-100 font-black text-[8px] sm:text-[10px] uppercase tracking-widest gap-2",
                         isExpanded ? "bg-indigo-50 text-indigo-600 border-indigo-200" : "text-slate-500 hover:bg-slate-50"
                       )}
                       onClick={() => {
@@ -539,23 +536,23 @@ export function VikundiView({ wateja, onUpdateWateja, onEditMember, onAddMemberT
                         }
                       }}
                     >
-                      {isExpanded ? "Funga" : "Wanachama"}
-                      <ChevronDownIcon className={cn("h-4 w-4 transition-transform", isExpanded && "rotate-180")} />
+                      {isExpanded ? "Funga" : "Watu"}
+                      <ChevronDownIcon className={cn("h-3 w-3 sm:h-4 sm:w-4 transition-transform", isExpanded && "rotate-180")} />
                     </Button>
                   </div>
                 </div>
 
                 {isExpanded && (
                   <div className="bg-slate-50 border-t border-slate-100 flex flex-col animate-in slide-in-from-top-2 duration-500">
-                    <div className="flex border-b border-slate-200 bg-white">
+                    <div className="flex border-b border-slate-200 bg-white overflow-x-auto scrollbar-hide">
                       <button 
                         onClick={() => setActiveSubTab("members")}
                         className={cn(
-                          "px-6 py-4 text-[10px] font-black uppercase tracking-widest transition-all relative",
+                          "px-4 sm:px-6 py-3 sm:py-4 text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all relative whitespace-nowrap",
                           activeSubTab === "members" ? "text-indigo-600" : "text-slate-400 hover:text-slate-600"
                         )}
                       >
-                        Wanachama ({group.members.length})
+                        Watu ({group.members.length})
                         {activeSubTab === "members" && (
                           <div className="absolute bottom-0 left-0 w-full h-1 bg-indigo-500" />
                         )}
@@ -563,18 +560,18 @@ export function VikundiView({ wateja, onUpdateWateja, onEditMember, onAddMemberT
                       <button 
                         onClick={() => setActiveSubTab("history")}
                         className={cn(
-                          "px-6 py-4 text-[10px] font-black uppercase tracking-widest transition-all relative",
+                          "px-4 sm:px-6 py-3 sm:py-4 text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all relative whitespace-nowrap",
                           activeSubTab === "history" ? "text-indigo-600" : "text-slate-400 hover:text-slate-600"
                         )}
                       >
-                        Historia ya Malipo ({groupHistory.length})
+                        Historia ({groupHistory.length})
                         {activeSubTab === "history" && (
                           <div className="absolute bottom-0 left-0 w-full h-1 bg-indigo-500" />
                         )}
                       </button>
                     </div>
 
-                    <div className="p-6">
+                    <div className="p-3 sm:p-6">
                         {activeSubTab === "members" ? (
                         <div>
                           {/* Desktop Table View */}
